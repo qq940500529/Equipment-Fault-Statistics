@@ -128,13 +128,53 @@ export function hideElement(element) {
  * 更新进度条
  * @param {number} percentage - 进度百分比（0-100）
  * @param {string} text - 进度文本
+ * @param {string} subText - 子文本（可选）
  */
-export function updateProgress(percentage, text = '') {
+export function updateProgress(percentage, text = '', subText = '') {
     const progressBar = document.getElementById('progressBar');
     if (progressBar) {
         progressBar.style.width = `${percentage}%`;
         progressBar.setAttribute('aria-valuenow', percentage);
         progressBar.textContent = text || `${percentage}%`;
+    }
+    
+    const statusText = document.getElementById('processingStatusText');
+    if (statusText && text) {
+        statusText.textContent = text;
+    }
+    
+    const subStatusText = document.getElementById('processingSubStatus');
+    if (subStatusText) {
+        subStatusText.textContent = subText || '';
+    }
+}
+
+/**
+ * 显示加载覆盖层
+ * @param {string} message - 加载消息
+ */
+export function showLoadingOverlay(message = '正在加载...') {
+    const overlay = document.getElementById('loadingOverlay');
+    if (overlay) {
+        const loadingText = overlay.querySelector('.loading-text');
+        if (loadingText) {
+            loadingText.textContent = message;
+        }
+        overlay.classList.remove('hidden');
+        overlay.style.display = 'flex';
+    }
+}
+
+/**
+ * 隐藏加载覆盖层
+ */
+export function hideLoadingOverlay() {
+    const overlay = document.getElementById('loadingOverlay');
+    if (overlay) {
+        overlay.classList.add('hidden');
+        setTimeout(() => {
+            overlay.style.display = 'none';
+        }, 300);
     }
 }
 
@@ -390,6 +430,8 @@ export default {
     showElement,
     hideElement,
     updateProgress,
+    showLoadingOverlay,
+    hideLoadingOverlay,
     deepClone,
     debounce,
     throttle,

@@ -6,7 +6,7 @@
  */
 
 import { APP_CONFIG, TABLE_CONFIG } from './config/constants.js';
-import { showInfo, showSuccess, showError, showWarning, formatFileSize, createTable, clearTable, updateProgress, escapeHtml, extractAllColumns, generateExportTimestamp, escapeCsvValue } from './utils/helpers.js';
+import { showInfo, showSuccess, showError, showWarning, formatFileSize, createTable, clearTable, updateProgress, escapeHtml, extractAllColumns, generateExportTimestamp, escapeCsvValue, showLoadingOverlay, hideLoadingOverlay } from './utils/helpers.js';
 import { FileUploader } from './modules/fileUploader.js';
 import { DataParser } from './modules/dataParser.js';
 import { DataValidator } from './modules/dataValidator.js';
@@ -44,6 +44,9 @@ class App {
         
         this.initialized = true;
         console.log('应用程序初始化完成');
+        
+        // 隐藏加载覆盖层
+        hideLoadingOverlay();
         
         // 显示欢迎消息
         this.showWelcomeMessage();
@@ -152,14 +155,20 @@ class App {
         console.log('选择的文件:', file.name, file.size);
         
         try {
+            // 显示处理进度
+            this.showStep(3);
+            
             // 显示加载状态
-            updateProgress(10, '正在读取文件...');
+            updateProgress(10, '正在读取文件...', `文件大小: ${formatFileSize(file.size)}`);
             
             // 读取文件
             const fileData = await this.fileUploader.readFile(file);
             this.currentFile = file;
             
-            updateProgress(30, '正在解析Excel...');
+            updateProgress(30, '正在解析Excel...', '读取文件内容完成');
+            
+            // 模拟处理延迟，让用户看到进度
+            await new Promise(resolve => setTimeout(resolve, 200));
             
             // 解析Excel
             const parseResult = this.dataParser.parseExcel(fileData);
@@ -168,7 +177,9 @@ class App {
                 throw new Error(parseResult.error);
             }
             
-            updateProgress(60, '解析完成，准备预览...');
+            updateProgress(60, '解析完成，准备预览...', `共 ${parseResult.rowCount} 行数据`);
+            
+            await new Promise(resolve => setTimeout(resolve, 200));
             
             // 保存原始数据
             this.rawData = parseResult.data;
@@ -182,9 +193,15 @@ class App {
             // 显示数据预览
             this.displayDataPreview(parseResult);
             
-            updateProgress(100, '完成！');
+            updateProgress(100, '完成！', '数据加载成功');
             
-            // 显示第二步
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            // 隐藏步骤3，显示第二步
+            const step3 = document.getElementById('step-3');
+            if (step3) {
+                step3.style.display = 'none';
+            }
             this.showStep(2);
             
             showSuccess(`文件读取成功！共 ${parseResult.rowCount} 行数据`, 3000);
@@ -193,6 +210,11 @@ class App {
             console.error('文件处理错误:', error);
             showError('文件处理失败: ' + error.message);
             updateProgress(0, '');
+            // 隐藏步骤3
+            const step3 = document.getElementById('step-3');
+            if (step3) {
+                step3.style.display = 'none';
+            }
         }
     }
 
@@ -361,7 +383,12 @@ class App {
         console.log('开始处理数据...');
         
         try {
-            updateProgress(10, '正在验证数据...');
+            // 显示步骤3
+            this.showStep(3);
+            
+            updateProgress(10, '正在验证数据...', '检查数据完整性');
+            
+            await new Promise(resolve => setTimeout(resolve, 300));
             
             // 步骤1: 数据验证
             const columnMapping = this.dataParser.getColumnMapping();
@@ -373,17 +400,30 @@ class App {
             if (!this.validationResult.valid) {
                 showError('数据验证失败，请检查数据并修正错误后重试');
                 updateProgress(0, '');
+                // 隐藏步骤3
+                const step3 = document.getElementById('step-3');
+                if (step3) {
+                    step3.style.display = 'none';
+                }
                 return;
             }
             
-            updateProgress(30, '验证通过，开始转换数据...');
+            updateProgress(30, '验证通过，开始转换数据...', '数据格式正确');
+            
+            await new Promise(resolve => setTimeout(resolve, 300));
+            
+            updateProgress(50, '正在处理数据...', '删除无效行、分列、计算时间');
+            
+            await new Promise(resolve => setTimeout(resolve, 300));
             
             // 步骤2: 数据转换
             const transformResult = this.dataTransformer.transform(this.rawData, columnMapping);
             this.processedData = transformResult.data;
             this.stats = transformResult.stats;
             
-            updateProgress(70, '数据转换完成，准备预览...');
+            updateProgress(70, '数据转换完成，准备预览...', `处理后共 ${this.processedData.length} 行数据`);
+            
+            await new Promise(resolve => setTimeout(resolve, 300));
             
             // 显示处理统计
             this.displayProcessingStats(transformResult.stats);
@@ -391,7 +431,9 @@ class App {
             // 显示处理后数据预览
             this.displayProcessedDataPreview();
             
-            updateProgress(100, '完成！');
+            updateProgress(100, '完成！', '数据处理成功');
+            
+            await new Promise(resolve => setTimeout(resolve, 500));
             
             showSuccess(`数据处理成功！处理后共 ${this.processedData.length} 行数据`, 3000);
             
@@ -399,6 +441,11 @@ class App {
             console.error('数据处理错误:', error);
             showError('数据处理失败: ' + error.message);
             updateProgress(0, '');
+            // 隐藏步骤3
+            const step3 = document.getElementById('step-3');
+            if (step3) {
+                step3.style.display = 'none';
+            }
         }
     }
 
