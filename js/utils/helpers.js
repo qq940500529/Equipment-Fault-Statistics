@@ -314,6 +314,71 @@ export function createTable(headers, rows, container) {
     container.appendChild(table);
 }
 
+/**
+ * 从数据数组中提取所有列名（按照出现顺序）
+ * @param {Array} data - 数据数组
+ * @param {Array} preferredOrder - 优先的列顺序（可选）
+ * @returns {Array} 列名数组
+ */
+export function extractAllColumns(data, preferredOrder = []) {
+    if (!data || data.length === 0) {
+        return preferredOrder;
+    }
+    
+    // 收集所有列名（保持顺序）
+    const allColumns = new Set();
+    
+    // 首先添加优先顺序的列（如果它们存在于数据中）
+    for (const col of preferredOrder) {
+        if (data.some(row => col in row)) {
+            allColumns.add(col);
+        }
+    }
+    
+    // 然后添加数据中的其他列
+    for (const row of data) {
+        for (const key of Object.keys(row)) {
+            allColumns.add(key);
+        }
+    }
+    
+    return Array.from(allColumns);
+}
+
+/**
+ * 生成导出文件名的时间戳
+ * @returns {string} 格式化的时间戳字符串 (YYYYMMDD_HHMMSS)
+ */
+export function generateExportTimestamp() {
+    const now = new Date();
+    return now.getFullYear() + 
+           String(now.getMonth() + 1).padStart(2, '0') + 
+           String(now.getDate()).padStart(2, '0') + '_' +
+           String(now.getHours()).padStart(2, '0') + 
+           String(now.getMinutes()).padStart(2, '0') + 
+           String(now.getSeconds()).padStart(2, '0');
+}
+
+/**
+ * 转义CSV值（处理逗号、引号、换行符）
+ * @param {any} value - 要转义的值
+ * @returns {string} 转义后的值
+ */
+export function escapeCsvValue(value) {
+    if (value === null || value === undefined) {
+        return '';
+    }
+    
+    const strValue = String(value);
+    
+    // 如果包含逗号、引号或换行符，需要用引号包裹并转义内部引号
+    if (strValue.includes(',') || strValue.includes('"') || strValue.includes('\n')) {
+        return '"' + strValue.replace(/"/g, '""') + '"';
+    }
+    
+    return strValue;
+}
+
 // 导出所有函数
 export default {
     formatFileSize,
@@ -334,5 +399,8 @@ export default {
     validateFileType,
     validateFileSize,
     clearTable,
-    createTable
+    createTable,
+    extractAllColumns,
+    generateExportTimestamp,
+    escapeCsvValue
 };

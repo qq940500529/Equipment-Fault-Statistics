@@ -6,7 +6,7 @@
  */
 
 import { APP_CONFIG, TABLE_CONFIG } from './config/constants.js';
-import { showInfo, showSuccess, showError, showWarning, formatFileSize, createTable, clearTable, updateProgress, escapeHtml } from './utils/helpers.js';
+import { showInfo, showSuccess, showError, showWarning, formatFileSize, createTable, clearTable, updateProgress, escapeHtml, extractAllColumns, generateExportTimestamp, escapeCsvValue } from './utils/helpers.js';
 import { FileUploader } from './modules/fileUploader.js';
 import { DataParser } from './modules/dataParser.js';
 import { DataValidator } from './modules/dataValidator.js';
@@ -512,8 +512,9 @@ class App {
         tableHeader.innerHTML = '';
         tableBody.innerHTML = '';
         
-        // 获取列头
-        const headers = this.dataParser.getHeaders();
+        // 获取列头 - 使用原始表头顺序，然后添加所有其他列
+        const originalHeaders = this.dataParser.getHeaders();
+        const headers = extractAllColumns(this.processedData, originalHeaders);
         
         // 获取预览数据（前50行）
         const previewData = this.processedData.slice(0, TABLE_CONFIG.PREVIEW_ROWS);
@@ -565,24 +566,179 @@ class App {
      * 处理Excel导出
      */
     handleExportExcel() {
-        console.log('导出Excel文件...');
-        showInfo('Excel导出功能将在后续阶段实现...', 3000);
+        if (!this.processedData || this.processedData.length === 0) {
+            showError('没有可导出的数据');
+            return;
+        }
+        
+        // Check if XLSX library is available
+        if (typeof XLSX === 'undefined') {
+            showError('Excel导出库未加载，请刷新页面重试');
+            return;
+        }
+        
+        try {
+            console.log('导出Excel文件...');
+            showInfo('正在生成Excel文件...', 2000);
+            
+            // 获取所有列（保持原始顺序）
+            const originalHeaders = this.dataParser.getHeaders();
+            const allHeaders = extractAllColumns(this.processedData, originalHeaders);
+            
+            // 准备导出数据 - 确保所有行都包含所有列
+            const exportData = this.processedData.map(row => {
+                const newRow = {};
+                allHeaders.forEach(header => {
+                    newRow[header] = row[header] !== undefined ? row[header] : '';
+                });
+                return newRow;
+            });
+            
+            // 创建工作簿
+            const wb = XLSX.utils.book_new();
+            
+            // 创建工作表
+            const ws = XLSX.utils.json_to_sheet(exportData, { 
+                header: allHeaders,
+                skipHeader: false
+            });
+            
+            // 添加工作表到工作簿
+            XLSX.utils.book_append_sheet(wb, ws, '整理后数据');
+            
+            // 生成文件名（使用当前日期时间）
+            const dateStr = generateExportTimestamp();
+            const fileName = `设备故障统计_整理后数据_${dateStr}.xlsx`;
+            
+            // 导出文件
+            XLSX.writeFile(wb, fileName);
+            
+            showSuccess(`Excel文件已成功导出: ${fileName}`, 4000);
+            console.log('Excel导出完成');
+            
+        } catch (error) {
+            console.error('Excel导出错误:', error);
+            showError('Excel导出失败: ' + error.message);
+        }
     }
 
     /**
      * 处理CSV导出
      */
     handleExportCsv() {
-        console.log('导出CSV文件...');
-        showInfo('CSV导出功能将在后续阶段实现...', 3000);
+        if (!this.processedData || this.processedData.length === 0) {
+            showError('没有可导出的数据');
+            return;
+        }
+        
+        try {
+            console.log('导出CSV文件...');
+            showInfo('正在生成CSV文件...', 2000);
+            
+            // 获取所有列（保持原始顺序）
+            const originalHeaders = this.dataParser.getHeaders();
+            const allHeaders = extractAllColumns(this.processedData, originalHeaders);
+            
+            // 创建CSV内容
+            let csvContent = '';
+            
+            // 添加表头（使用BOM以支持中文）
+            csvContent = '\uFEFF' + allHeaders.map(h => escapeCsvValue(h)).join(',') + '\n';
+            
+            // 添加数据行
+            this.processedData.forEach(row => {
+                const values = allHeaders.map(header => {
+                    const value = row[header];
+                    return escapeCsvValue(value !== undefined ? value : '');
+                });
+                csvContent += values.join(',') + '\n';
+            });
+            
+            // 生成文件名（使用当前日期时间）
+            const dateStr = generateExportTimestamp();
+            const fileName = `设备故障统计_整理后数据_${dateStr}.csv`;
+            
+            // 创建Blob并下载
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', fileName);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showSuccess(`CSV文件已成功导出: ${fileName}`, 4000);
+            console.log('CSV导出完成');
+            
+        } catch (error) {
+            console.error('CSV导出错误:', error);
+            showError('CSV导出失败: ' + error.message);
+        }
     }
 
     /**
      * 处理JSON导出
      */
     handleExportJson() {
-        console.log('导出JSON文件...');
-        showInfo('JSON导出功能将在后续阶段实现...', 3000);
+        if (!this.processedData || this.processedData.length === 0) {
+            showError('没有可导出的数据');
+            return;
+        }
+        
+        try {
+            console.log('导出JSON文件...');
+            showInfo('正在生成JSON文件...', 2000);
+            
+            // 获取所有列（保持原始顺序）
+            const originalHeaders = this.dataParser.getHeaders();
+            const allHeaders = extractAllColumns(this.processedData, originalHeaders);
+            
+            // 准备导出数据 - 确保所有行都包含所有列
+            const exportData = this.processedData.map(row => {
+                const newRow = {};
+                allHeaders.forEach(header => {
+                    newRow[header] = row[header] !== undefined ? row[header] : null;
+                });
+                return newRow;
+            });
+            
+            // 创建JSON内容（格式化输出，便于阅读）
+            const jsonContent = JSON.stringify({
+                metadata: {
+                    exportTime: new Date().toISOString(),
+                    totalRows: exportData.length,
+                    columns: allHeaders,
+                    version: APP_CONFIG.VERSION
+                },
+                data: exportData
+            }, null, 2);
+            
+            // 生成文件名（使用当前日期时间）
+            const dateStr = generateExportTimestamp();
+            const fileName = `设备故障统计_整理后数据_${dateStr}.json`;
+            
+            // 创建Blob并下载
+            const blob = new Blob([jsonContent], { type: 'application/json;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', fileName);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showSuccess(`JSON文件已成功导出: ${fileName}`, 4000);
+            console.log('JSON导出完成');
+            
+        } catch (error) {
+            console.error('JSON导出错误:', error);
+            showError('JSON导出失败: ' + error.message);
+        }
     }
 
     /**
