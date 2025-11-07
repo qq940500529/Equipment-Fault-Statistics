@@ -57,6 +57,7 @@ describe('DataValidator', () => {
             const columnMapping = {
                 workOrder: '工单号',
                 workshop: '车间',
+                repairPerson: '维修人',
                 reportTime: '报修时间',
                 startTime: '维修开始时间',
                 endTime: '维修结束时间'
@@ -66,6 +67,7 @@ describe('DataValidator', () => {
                 {
                     '工单号': 'WO001',
                     '车间': '车间A',
+                    '维修人': '张三',
                     '报修时间': new Date('2024-01-01 08:00:00'),
                     '维修开始时间': new Date('2024-01-01 09:00:00'),
                     '维修结束时间': new Date('2024-01-01 10:00:00')
@@ -81,6 +83,7 @@ describe('DataValidator', () => {
             const columnMapping = {
                 workOrder: '工单号',
                 workshop: '车间',
+                repairPerson: '维修人',
                 reportTime: '报修时间',
                 startTime: '维修开始时间',
                 endTime: '维修结束时间'
@@ -90,6 +93,7 @@ describe('DataValidator', () => {
                 {
                     '工单号': '',
                     '车间': '车间A',
+                    '维修人': '张三',
                     '报修时间': new Date('2024-01-01 08:00:00'),
                     '维修开始时间': new Date('2024-01-01 09:00:00'),
                     '维修结束时间': new Date('2024-01-01 10:00:00')
@@ -105,6 +109,7 @@ describe('DataValidator', () => {
             const columnMapping = {
                 workOrder: '工单号',
                 workshop: '车间',
+                repairPerson: '维修人',
                 reportTime: '报修时间',
                 startTime: '维修开始时间',
                 endTime: '维修结束时间'
@@ -114,6 +119,7 @@ describe('DataValidator', () => {
                 {
                     '工单号': 'WO001',
                     '车间': '车间A',
+                    '维修人': '张三',
                     '报修时间': null,
                     '维修开始时间': new Date('2024-01-01 09:00:00'),
                     '维修结束时间': new Date('2024-01-01 10:00:00')
