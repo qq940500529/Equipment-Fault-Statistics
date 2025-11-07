@@ -31,6 +31,8 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
+          # TODO: Change to specific directory (e.g., './dist' or './public') 
+          # when the actual site is built to avoid exposing sensitive files
           path: '.'
 
       - name: Deploy to GitHub Pages
