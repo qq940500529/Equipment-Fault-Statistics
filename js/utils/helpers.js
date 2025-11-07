@@ -192,7 +192,7 @@ export function delay(ms) {
  * @param {string} title - 模态框标题
  * @param {Array} deletedRows - 删除的行数据
  * @param {Array} headers - 表头
- * @param {string} deletionReason - 删除原因
+ * @param {string} [deletionReason=''] - 删除原因 (可选，默认为空字符串)
  */
 export function showDeletedRowsModal(title, deletedRows, headers, deletionReason = '') {
     // 更新模态框标题

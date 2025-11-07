@@ -503,12 +503,16 @@ class App {
         const workshopColumnSplit = stats.workshopColumnSplit ? '✓' : '-';
         const repairPersonClassified = stats.repairPersonClassified ? '✓' : '-';
         
+        // Helper function to determine if a card should be clickable
+        const isCardClickable = (cardId, count) => {
+            return cardId !== null && typeof count === 'number' && count > 0;
+        };
+        
         // Helper function to generate card HTML
         const generateCardHtml = (title, count, cardId = null) => {
-            // Only make card clickable if it has a cardId and count is a positive number
-            const isClickable = cardId && typeof count === 'number' && count > 0;
-            const cardClass = isClickable ? 'card deleted-rows-card' : 'card';
-            const cardAttrs = isClickable ? `id="${cardId}"` : '';
+            const clickable = isCardClickable(cardId, count);
+            const cardClass = clickable ? 'card deleted-rows-card' : 'card';
+            const cardAttrs = clickable ? `id="${cardId}"` : '';
             
             return `
                 <div class="${cardClass}" ${cardAttrs}>
