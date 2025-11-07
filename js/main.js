@@ -167,9 +167,6 @@ class App {
             
             updateProgress(30, '正在解析Excel...', '读取文件内容完成');
             
-            // 模拟处理延迟，让用户看到进度
-            await new Promise(resolve => setTimeout(resolve, 200));
-            
             // 解析Excel
             const parseResult = this.dataParser.parseExcel(fileData);
             
@@ -178,8 +175,6 @@ class App {
             }
             
             updateProgress(60, '解析完成，准备预览...', `共 ${parseResult.rowCount} 行数据`);
-            
-            await new Promise(resolve => setTimeout(resolve, 200));
             
             // 保存原始数据
             this.rawData = parseResult.data;
@@ -195,7 +190,8 @@ class App {
             
             updateProgress(100, '完成！', '数据加载成功');
             
-            await new Promise(resolve => setTimeout(resolve, 500));
+            // 短暂延迟以显示完成状态
+            await new Promise(resolve => setTimeout(resolve, 300));
             
             // 隐藏步骤3，显示第二步
             const step3 = document.getElementById('step-3');
@@ -388,8 +384,6 @@ class App {
             
             updateProgress(10, '正在验证数据...', '检查数据完整性');
             
-            await new Promise(resolve => setTimeout(resolve, 300));
-            
             // 步骤1: 数据验证
             const columnMapping = this.dataParser.getColumnMapping();
             this.validationResult = this.dataValidator.validate(this.rawData, columnMapping);
@@ -410,11 +404,7 @@ class App {
             
             updateProgress(30, '验证通过，开始转换数据...', '数据格式正确');
             
-            await new Promise(resolve => setTimeout(resolve, 300));
-            
             updateProgress(50, '正在处理数据...', '删除无效行、分列、计算时间');
-            
-            await new Promise(resolve => setTimeout(resolve, 300));
             
             // 步骤2: 数据转换
             const transformResult = this.dataTransformer.transform(this.rawData, columnMapping);
@@ -422,8 +412,6 @@ class App {
             this.stats = transformResult.stats;
             
             updateProgress(70, '数据转换完成，准备预览...', `处理后共 ${this.processedData.length} 行数据`);
-            
-            await new Promise(resolve => setTimeout(resolve, 300));
             
             // 显示处理统计
             this.displayProcessingStats(transformResult.stats);
@@ -433,7 +421,8 @@ class App {
             
             updateProgress(100, '完成！', '数据处理成功');
             
-            await new Promise(resolve => setTimeout(resolve, 500));
+            // 短暂延迟以显示完成状态
+            await new Promise(resolve => setTimeout(resolve, 300));
             
             showSuccess(`数据处理成功！处理后共 ${this.processedData.length} 行数据`, 3000);
             

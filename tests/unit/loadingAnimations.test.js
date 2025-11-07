@@ -88,7 +88,7 @@ describe('Loading Animations', () => {
             setTimeout(() => {
                 expect(overlay.style.display).toBe('none');
                 done();
-            }, 400);
+            }, 350); // Slightly more than 300ms transition
         });
     });
 
