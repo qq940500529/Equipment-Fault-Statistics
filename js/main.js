@@ -6,7 +6,7 @@
  */
 
 import { APP_CONFIG, TABLE_CONFIG } from './config/constants.js';
-import { showInfo, showSuccess, showError, formatFileSize, createTable, clearTable, updateProgress } from './utils/helpers.js';
+import { showInfo, showSuccess, showError, formatFileSize, createTable, clearTable, updateProgress, escapeHtml } from './utils/helpers.js';
 import { FileUploader } from './modules/fileUploader.js';
 import { DataParser } from './modules/dataParser.js';
 
@@ -217,6 +217,9 @@ class App {
         
         const stats = this.dataParser.getStatistics();
         
+        // 转义用户输入以防止XSS攻击
+        const safeSheetName = escapeHtml(parseResult.sheetName);
+        
         statsContainer.innerHTML = `
             <div class="row">
                 <div class="col-md-4">
@@ -239,7 +242,7 @@ class App {
                     <div class="card">
                         <div class="card-body text-center">
                             <h5 class="card-title">工作表</h5>
-                            <p class="card-text display-6">${parseResult.sheetName}</p>
+                            <p class="card-text display-6">${safeSheetName}</p>
                         </div>
                     </div>
                 </div>
