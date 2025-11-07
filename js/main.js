@@ -5,7 +5,7 @@
  * Equipment Fault Statistics System v0.2.0
  */
 
-import { APP_CONFIG } from './config/constants.js';
+import { APP_CONFIG, TABLE_CONFIG } from './config/constants.js';
 import { showInfo, showSuccess, showError, formatFileSize, createTable, clearTable, updateProgress } from './utils/helpers.js';
 import { FileUploader } from './modules/fileUploader.js';
 import { DataParser } from './modules/dataParser.js';
@@ -260,8 +260,8 @@ class App {
         // 清空之前的内容
         previewContainer.innerHTML = '';
         
-        // 获取预览数据（前50行）
-        const previewData = this.dataParser.getPreviewData(50);
+        // 获取预览数据（使用配置的行数）
+        const previewData = this.dataParser.getPreviewData(TABLE_CONFIG.PREVIEW_ROWS);
         
         // 创建表格
         const tableDiv = document.createElement('div');
@@ -321,7 +321,7 @@ class App {
         // 添加预览说明
         const note = document.createElement('p');
         note.className = 'text-muted mt-2';
-        note.textContent = `显示前 ${Math.min(previewData.length, 50)} 行数据`;
+        note.textContent = `显示前 ${Math.min(previewData.length, TABLE_CONFIG.PREVIEW_ROWS)} 行数据`;
         previewContainer.appendChild(note);
         
         previewContainer.style.display = 'block';

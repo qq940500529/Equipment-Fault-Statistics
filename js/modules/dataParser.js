@@ -4,10 +4,17 @@
  * 
  * 功能：解析Excel文件并提取数据
  * Features: Parse Excel files and extract data
+ * 
+ * 注意：此模块依赖全局XLSX对象，该对象通过index.html中的script标签加载
+ * Note: This module depends on the global XLSX object loaded via script tag in index.html
  */
 
-import { REQUIRED_COLUMNS, OPTIONAL_COLUMNS, MESSAGES } from '../config/constants.js';
+import { REQUIRED_COLUMNS, OPTIONAL_COLUMNS, MESSAGES, TABLE_CONFIG } from '../config/constants.js';
 import { showError, showWarning } from '../utils/helpers.js';
+
+// 获取全局XLSX对象（由lib/xlsx.full.min.js提供）
+// Access the global XLSX object (provided by lib/xlsx.full.min.js)
+const XLSX = window.XLSX;
 
 /**
  * 数据解析器类
@@ -179,10 +186,10 @@ export class DataParser {
 
     /**
      * 获取预览数据（前N行）
-     * @param {number} limit - 限制行数，默认50
+     * @param {number} limit - 限制行数，默认使用配置值
      * @returns {Array} 预览数据
      */
-    getPreviewData(limit = 50) {
+    getPreviewData(limit = TABLE_CONFIG.PREVIEW_ROWS) {
         return this.rawData.slice(0, limit);
     }
 
