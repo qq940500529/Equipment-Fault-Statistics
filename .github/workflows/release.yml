@@ -1,0 +1,279 @@
+name: Create Release Package
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_version:
+        description: 'Confirm version from package.json'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  validate-and-release:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0  # Fetch all history for version checking
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '18'
+
+      - name: Extract version from package.json
+        id: package_version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "📦 Package.json version: $VERSION"
+
+      - name: Validate input version matches package.json
+        run: |
+          PACKAGE_VERSION="${{ steps.package_version.outputs.version }}"
+          INPUT_VERSION="${{ github.event.inputs.confirm_version }}"
+          
+          echo "Comparing versions:"
+          echo "  Package.json: $PACKAGE_VERSION"
+          echo "  User input:   $INPUT_VERSION"
+          
+          if [ "$PACKAGE_VERSION" != "$INPUT_VERSION" ]; then
+            echo "❌ Error: Version mismatch!"
+            echo "The version you entered ($INPUT_VERSION) does not match package.json ($PACKAGE_VERSION)"
+            echo "Please update package.json or enter the correct version."
+            exit 1
+          fi
+          echo "✅ Version validated: $PACKAGE_VERSION"
+
+      - name: Check if release already exists
+        id: check_release
+        run: |
+          VERSION="${{ steps.package_version.outputs.version }}"
+          TAG="v$VERSION"
+          
+          echo "Checking if release $TAG already exists..."
+          
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "❌ Error: Release $TAG already exists!"
+            echo "Please update the version in package.json before creating a new release."
+            echo ""
+            echo "Existing release details:"
+            gh release view "$TAG"
+            exit 1
+          fi
+          
+          echo "✅ No existing release found for $TAG"
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Get all releases for version comparison
+        id: list_releases
+        run: |
+          echo "📋 Listing all existing releases:"
+          gh release list --limit 50 || echo "No releases found"
+          
+          echo ""
+          echo "Validating version is newer than previous releases..."
+          
+          VERSION="${{ steps.package_version.outputs.version }}"
+          LATEST_RELEASE=$(gh release list --limit 1 --json tagName --jq '.[0].tagName' 2>/dev/null | sed 's/^v//' || echo "")
+          
+          if [ -n "$LATEST_RELEASE" ]; then
+            echo "Latest release version: $LATEST_RELEASE"
+            echo "New version: $VERSION"
+            
+            # Check if versions are identical
+            if [ "$VERSION" = "$LATEST_RELEASE" ]; then
+              echo "❌ Error: Version $VERSION is the same as the latest release"
+              exit 1
+            fi
+            
+            # Semantic version comparison function
+            compare_versions() {
+                local ver1=$1
+                local ver2=$2
+                
+                # Split versions into arrays
+                IFS='.' read -ra V1 <<< "$ver1"
+                IFS='.' read -ra V2 <<< "$ver2"
+                
+                # Compare major, minor, patch
+                for i in 0 1 2; do
+                    local v1_part=${V1[$i]:-0}
+                    local v2_part=${V2[$i]:-0}
+                    
+                    if [ "$v1_part" -gt "$v2_part" ]; then
+                        return 0  # ver1 > ver2
+                    elif [ "$v1_part" -lt "$v2_part" ]; then
+                        return 1  # ver1 < ver2
+                    fi
+                done
+                
+                return 2  # versions are equal
+            }
+            
+            if compare_versions "$VERSION" "$LATEST_RELEASE"; then
+              echo "✅ New version $VERSION is newer than latest release $LATEST_RELEASE"
+            else
+              echo "❌ Error: New version $VERSION is not newer than latest release $LATEST_RELEASE"
+              echo "Please update package.json with a version number higher than $LATEST_RELEASE"
+              exit 1
+            fi
+          else
+            echo "ℹ️  No previous releases found. This will be the first release."
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Create release package
+        run: |
+          VERSION="${{ steps.package_version.outputs.version }}"
+          PACKAGE_NAME="equipment-fault-statistics-v${VERSION}"
+          
+          echo "📦 Creating release package: $PACKAGE_NAME"
+          
+          # Create temporary directory for packaging
+          mkdir -p "release-temp/$PACKAGE_NAME"
+          
+          # Copy core application files
+          echo "Copying core application files..."
+          cp index.html "release-temp/$PACKAGE_NAME/"
+          cp -r css "release-temp/$PACKAGE_NAME/"
+          cp -r js "release-temp/$PACKAGE_NAME/"
+          cp -r lib "release-temp/$PACKAGE_NAME/"
+          
+          # Copy essential root files
+          cp README.md "release-temp/$PACKAGE_NAME/"
+          cp LICENSE "release-temp/$PACKAGE_NAME/"
+          cp CHANGELOG.md "release-temp/$PACKAGE_NAME/"
+          
+          # Create archive
+          cd release-temp
+          zip -r "../${PACKAGE_NAME}.zip" "$PACKAGE_NAME"
+          cd ..
+          
+          # Create checksum
+          sha256sum "${PACKAGE_NAME}.zip" > "${PACKAGE_NAME}.zip.sha256"
+          
+          echo "✅ Package created successfully"
+          echo "package_name=$PACKAGE_NAME" >> $GITHUB_OUTPUT
+          echo "package_file=${PACKAGE_NAME}.zip" >> $GITHUB_OUTPUT
+          
+          # Display package contents
+          echo ""
+          echo "📋 Package contents:"
+          unzip -l "${PACKAGE_NAME}.zip" | head -50
+          
+          # Display package size
+          echo ""
+          echo "📊 Package size:"
+          ls -lh "${PACKAGE_NAME}.zip"
+        id: create_package
+
+      - name: Generate release notes
+        id: release_notes
+        run: |
+          VERSION="${{ steps.package_version.outputs.version }}"
+          
+          cat > release_notes.md << EOF
+          ## 设备故障统计系统 v${VERSION}
+          
+          ### 📦 发布说明
+          
+          这是一个纯前端的设备故障数据处理与可视化平台，用于处理设备维修记录的Excel数据，并生成统计图表。
+          
+          ### 🚀 核心功能
+          
+          - ✅ Excel文件上传与解析（支持.xlsx和.xls格式）
+          - ✅ 数据清洗与转换（复刻VBA脚本逻辑）
+          - ✅ 数据验证与质量检查
+          - ✅ 结果导出（Excel、CSV、JSON格式）
+          
+          ### 📥 使用方法
+          
+          1. 下载并解压 \`equipment-fault-statistics-v${VERSION}.zip\`
+          2. 双击打开 \`index.html\` 文件
+          3. 按照界面提示上传Excel文件并处理数据
+          
+          ### 📦 包含内容
+          
+          - \`index.html\` - 应用主页面
+          - \`css/\` - 样式文件
+          - \`js/\` - JavaScript源代码
+          - \`lib/\` - 第三方库（支持离线使用）
+          - \`README.md\` - 使用说明
+          - \`LICENSE\` - MIT许可证
+          - \`CHANGELOG.md\` - 变更日志
+          
+          ### 🔍 验证下载
+          
+          使用 SHA256 校验和验证下载完整性：
+          \`\`\`bash
+          sha256sum -c equipment-fault-statistics-v${VERSION}.zip.sha256
+          \`\`\`
+          
+          ### 📚 文档
+          
+          详细使用说明和文档请访问：
+          - [GitHub 仓库](https://github.com/qq940500529/Equipment-Fault-Statistics)
+          - [在线演示](https://qq940500529.github.io/Equipment-Fault-Statistics/)
+          
+          ### ⚠️ 注意事项
+          
+          - 此包仅包含核心应用程序，不包含测试和开发文档
+          - 完整源代码和文档请访问 GitHub 仓库
+          - 所有数据处理均在客户端完成，无需网络连接
+          - 数据不会上传到服务器，完全本地处理
+          
+          EOF
+          
+          echo "Release notes generated"
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${{ steps.check_release.outputs.tag }}"
+          PACKAGE_FILE="${{ steps.create_package.outputs.package_file }}"
+          VERSION="${{ steps.package_version.outputs.version }}"
+          
+          echo "Creating release $TAG..."
+          
+          gh release create "$TAG" \
+            --title "Release v$VERSION" \
+            --notes-file release_notes.md \
+            "$PACKAGE_FILE" \
+            "${PACKAGE_FILE}.sha256"
+          
+          echo "✅ Release created successfully!"
+          echo ""
+          echo "🎉 Release URL:"
+          gh release view "$TAG" --web
+
+      - name: Summary
+        run: |
+          VERSION="${{ steps.package_version.outputs.version }}"
+          TAG="${{ steps.check_release.outputs.tag }}"
+          
+          echo "## ✅ Release Created Successfully" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version**: $VERSION" >> $GITHUB_STEP_SUMMARY
+          echo "- **Tag**: $TAG" >> $GITHUB_STEP_SUMMARY
+          echo "- **Package**: equipment-fault-statistics-v${VERSION}.zip" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📦 Package Contents" >> $GITHUB_STEP_SUMMARY
+          echo "- Core application files (HTML, CSS, JS)" >> $GITHUB_STEP_SUMMARY
+          echo "- Third-party libraries (offline support)" >> $GITHUB_STEP_SUMMARY
+          echo "- README.md, LICENSE, CHANGELOG.md" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### ⚠️ Excluded from Release" >> $GITHUB_STEP_SUMMARY
+          echo "- Tests and test files" >> $GITHUB_STEP_SUMMARY
+          echo "- Documentation (docs/)" >> $GITHUB_STEP_SUMMARY
+          echo "- Examples (examples/)" >> $GITHUB_STEP_SUMMARY
+          echo "- Development files (jest.config.js, package.json, etc.)" >> $GITHUB_STEP_SUMMARY

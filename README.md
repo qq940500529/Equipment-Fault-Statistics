@@ -172,13 +172,12 @@ Equipment-Fault-Statistics/
 ├── examples/                  # 示例文件 ✅
 │   └── README.md             # 示例说明
 ├── tests/                     # 测试目录 ✅
-│   ├── unit/                 # 单元测试 (Phase 2)
+│   ├── unit/                 # 单元测试
 │   │   ├── fileUploader.test.js
 │   │   └── dataParser.test.js
 │   └── README.md             # 测试指南
-├── PHASE1_COMPLETION.md      # Phase 1 完成报告 ✅
-├── PHASE2_COMPLETION.md      # Phase 2 完成报告 ✅
 ├── CHANGELOG.md              # 变更日志 ✅
+├── LICENSE                   # MIT许可证
 └── README.md                 # 本文档
 
 ✅ = 已完成
@@ -226,7 +225,7 @@ Equipment-Fault-Statistics/
 - [ ] 性能优化
 - [ ] 正式发布
 
-详细计划请参阅 [实施计划文档](docs/IMPLEMENTATION.md)、[Phase 1 完成报告](PHASE1_COMPLETION.md) 和 [Phase 2 完成报告](PHASE2_COMPLETION.md)
+详细计划请参阅 [实施计划文档](docs/IMPLEMENTATION.md)
 
 ## GitHub功能
 
@@ -236,6 +235,38 @@ Equipment-Fault-Statistics/
 - **GitHub Actions**: 自动部署到GitHub Pages
 - **代码质量检查**: 自动检查Markdown和JSON文件
 - **Dependabot**: 自动更新依赖项
+- **发布流水线**: 手动触发的版本发布流程，自动打包和发布
+
+### 📦 发布流程
+
+本项目使用自动化的CI/CD流水线进行版本发布：
+
+1. **准备发布**
+   - 更新 `package.json` 中的版本号
+   - 更新 `CHANGELOG.md` 记录变更
+   - 提交并推送更改到主分支
+
+2. **触发发布**
+   - 访问 [Actions](https://github.com/qq940500529/Equipment-Fault-Statistics/actions/workflows/release.yml) 页面
+   - 点击 "Run workflow"
+   - 输入版本号（必须与 package.json 一致）
+   - 点击 "Run workflow" 确认
+
+3. **自动验证**
+   - 验证输入版本与 package.json 匹配
+   - 检查该版本是否已发布
+   - 对比已有版本，防止版本冲突
+
+4. **自动打包**
+   - 仅包含核心程序文件（index.html, css/, js/, lib/）
+   - 包含必要文档（README.md, LICENSE, CHANGELOG.md）
+   - 排除测试、开发文档、示例等文件
+   - 生成 ZIP 压缩包和 SHA256 校验和
+
+5. **创建发布**
+   - 在 GitHub Releases 中创建新版本
+   - 自动上传发布包和校验和文件
+   - 生成发布说明
 
 ### 📝 Issue和PR模板
 - **Bug报告模板**: 结构化的问题报告
@@ -244,13 +275,11 @@ Equipment-Fault-Statistics/
 - **PR模板**: 标准化的代码审查流程
 
 ### 📚 项目文档
-- **Wiki文档**: [GitHub Wiki](https://github.com/qq940500529/Equipment-Fault-Statistics/wiki) - 完整的使用和开发文档
 - **贡献指南**: [CONTRIBUTING.md](CONTRIBUTING.md)
 - **行为准则**: [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
 - **安全政策**: [SECURITY.md](SECURITY.md)
 - **变更日志**: [CHANGELOG.md](CHANGELOG.md)
 - **许可证**: [LICENSE](LICENSE)
-- **Wiki发布指南**: [WIKI_DOCUMENTATION.md](WIKI_DOCUMENTATION.md)
 
 ### 🏷️ 标签系统
 - 类型标签: bug, enhancement, documentation

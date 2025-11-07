@@ -212,6 +212,70 @@ Equipment-Fault-Statistics/
 3. **反馈处理**：根据审查意见修改代码
 4. **合并**：审查通过后合并到主分支
 
+## 发布流程（维护者）
+
+### 准备发布
+
+1. **更新版本号**
+   - 在 `package.json` 中更新 `version` 字段
+   - 遵循[语义化版本](https://semver.org/lang/zh-CN/)规范：
+     - 主版本号：不兼容的API修改
+     - 次版本号：向下兼容的功能性新增
+     - 修订号：向下兼容的问题修正
+
+2. **更新变更日志**
+   - 在 `CHANGELOG.md` 中记录本次发布的所有变更
+   - 按照 新增/变更/修复/安全 等分类组织
+   - 移动 `[未发布]` 部分到新版本号下
+
+3. **提交更改**
+   ```bash
+   git add package.json CHANGELOG.md
+   git commit -m "Bump version to vX.Y.Z"
+   git push origin main
+   ```
+
+### 触发发布
+
+1. **访问Actions页面**
+   - 前往 [Create Release Package](https://github.com/qq940500529/Equipment-Fault-Statistics/actions/workflows/release.yml)
+
+2. **手动触发工作流**
+   - 点击 "Run workflow" 按钮
+   - 在输入框中输入版本号（例如：`0.3.0`）
+   - 版本号必须与 `package.json` 中的完全一致
+   - 点击 "Run workflow" 确认
+
+### 自动化验证和发布
+
+工作流将自动执行以下步骤：
+
+1. **版本验证**
+   - ✅ 验证输入的版本号与 `package.json` 一致
+   - ✅ 检查该版本的发布是否已存在
+   - ✅ 对比已有版本，防止版本冲突
+
+2. **创建发布包**
+   - 📦 打包核心应用文件（`index.html`, `css/`, `js/`, `lib/`）
+   - 📄 包含必要文档（`README.md`, `LICENSE`, `CHANGELOG.md`）
+   - ❌ 排除测试、文档、示例等开发文件
+   - 🔐 生成 SHA256 校验和
+
+3. **发布到GitHub**
+   - 🏷️ 创建Git标签（例如：`v0.3.0`）
+   - 📝 生成发布说明
+   - ⬆️ 上传发布包和校验和文件
+   - 🎉 在GitHub Releases中发布
+
+### 验证发布
+
+发布成功后：
+
+1. 访问 [Releases](https://github.com/qq940500529/Equipment-Fault-Statistics/releases) 页面
+2. 验证发布包已正确上传
+3. 下载并测试发布包
+4. 验证SHA256校验和
+
 ## 获取帮助
 
 - 📖 查看[文档](docs/)
