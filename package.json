@@ -1,8 +1,8 @@
 {
   "name": "equipment-fault-statistics",
-  "version": "1.0.0",
-  "description": "## 项目简介",
-  "main": "index.js",
+  "version": "0.2.0",
+  "description": "设备故障统计系统 - 纯前端Excel数据处理与可视化平台 (Phase 1 已完成)",
+  "main": "js/main.js",
   "directories": {
     "doc": "docs",
     "example": "examples",
@@ -10,11 +10,23 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "serve": "npx http-server -p 8000"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "excel",
+    "data-processing",
+    "equipment-maintenance",
+    "fault-statistics",
+    "frontend",
+    "offline-first"
+  ],
+  "author": "qq940500529",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/qq940500529/Equipment-Fault-Statistics.git"
+  },
   "dependencies": {
     "bootstrap": "^5.3.8",
     "dayjs": "^1.11.19",
