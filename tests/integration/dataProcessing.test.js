@@ -303,7 +303,7 @@ describe('数据处理完整流程集成测试', () => {
                 const firstRow = previewData[0];
                 headers.forEach(header => {
                     // 每个表头对应的列都应该在数据行中存在（可能为空）
-                    expect(header in firstRow || firstRow[header] !== undefined).toBeTruthy();
+                    expect(header in firstRow).toBeTruthy();
                 });
             }
         });
