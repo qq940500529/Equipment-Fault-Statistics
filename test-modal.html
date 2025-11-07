@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modal Width Test</title>
+    <link rel="stylesheet" href="http://localhost:8000/lib/bootstrap.min.css">
+    <link rel="stylesheet" href="http://localhost:8000/css/main.css">
+    <link rel="stylesheet" href="http://localhost:8000/css/components.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#deletedRowsModal">
+            打开删除行详情模态框
+        </button>
+    </div>
+
+    <!-- 删除行详情模态框 -->
+    <div id="deletedRowsModal" class="modal fade" tabindex="-1" aria-labelledby="deletedRowsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deletedRowsModalLabel">删除的行 - 测试宽度自适应</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="table-responsive" style="max-height: 70vh;">
+                        <table class="table table-striped table-bordered table-sm table-hover">
+                            <thead id="deletedRowsTableHeader" class="table-dark sticky-top">
+                                <tr>
+                                    <th style="width: 50px;">#</th>
+                                    <th>车间</th>
+                                    <th>设备名称</th>
+                                    <th>故障现象描述</th>
+                                    <th>报修时间</th>
+                                    <th>修复时间</th>
+                                    <th>维修人员</th>
+                                    <th>维修费用</th>
+                                    <th class="deletion-reason-column">删除原因</th>
+                                </tr>
+                            </thead>
+                            <tbody id="deletedRowsTableBody">
+                                <tr>
+                                    <td class="text-center">1</td>
+                                    <td>第一车间</td>
+                                    <td>设备A型号12345非常长的名称用于测试换行</td>
+                                    <td>设备突然停机，电机异常发热，需要立即维修处理，否则会造成生产线停工</td>
+                                    <td>2023-10-15 08:30:00</td>
+                                    <td>2023-10-15 16:45:00</td>
+                                    <td>张三, 李四, 王五</td>
+                                    <td>2500元</td>
+                                    <td class="text-muted">车间列值为"合计"</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-center">2</td>
+                                    <td>第二车间</td>
+                                    <td>设备B</td>
+                                    <td>传送带断裂</td>
+                                    <td>2023-10-16 10:00:00</td>
+                                    <td></td>
+                                    <td>赵六</td>
+                                    <td>1000元</td>
+                                    <td class="text-muted">报修时间或修复时间为空</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-center">3</td>
+                                    <td>第三车间非常非常非常长的车间名称</td>
+                                    <td>超级复杂的设备型号XYZ-9876-ULTRA-MAX-PRO-PLUS版本3.0</td>
+                                    <td>这是一段非常非常长的故障描述文本，用来测试表格单元格的自动换行功能是否正常工作，以及模态框宽度是否能够根据内容自适应调整</td>
+                                    <td>2023-10-17 14:20:00</td>
+                                    <td>2023-10-17 18:30:00</td>
+                                    <td>维修团队：张三、李四、王五、赵六、钱七、孙八</td>
+                                    <td>15000元（包含材料费、人工费、运输费等）</td>
+                                    <td class="text-muted">车间列值为"合计"行，需要从统计中删除</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="http://localhost:8000/lib/bootstrap.bundle.min.js"></script>
+</body>
+</html>
