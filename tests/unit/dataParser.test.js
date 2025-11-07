@@ -44,31 +44,31 @@ describe('DataParser', () => {
             dataParser.headers = ['工单号', '车间', '维修人', '报修时间', '维修开始时间', '维修结束时间'];
             dataParser.createColumnMapping();
             
-            expect(dataParser.columnMapping.workOrder).toBe(0);
-            expect(dataParser.columnMapping.workshop).toBe(1);
-            expect(dataParser.columnMapping.repairPerson).toBe(2);
-            expect(dataParser.columnMapping.reportTime).toBe(3);
-            expect(dataParser.columnMapping.startTime).toBe(4);
-            expect(dataParser.columnMapping.endTime).toBe(5);
+            expect(dataParser.columnMapping.workOrder).toBe('工单号');
+            expect(dataParser.columnMapping.workshop).toBe('车间');
+            expect(dataParser.columnMapping.repairPerson).toBe('维修人');
+            expect(dataParser.columnMapping.reportTime).toBe('报修时间');
+            expect(dataParser.columnMapping.startTime).toBe('维修开始时间');
+            expect(dataParser.columnMapping.endTime).toBe('维修结束时间');
         });
 
         test('should map optional columns when present', () => {
             dataParser.headers = ['工单号', '车间', '区域', '维修人', '维修人分类', '报修时间', '维修开始时间', '维修结束时间'];
             dataParser.createColumnMapping();
             
-            expect(dataParser.columnMapping.area).toBe(2);
-            expect(dataParser.columnMapping.repairPersonType).toBe(4);
+            expect(dataParser.columnMapping.area).toBe('区域');
+            expect(dataParser.columnMapping.repairPersonType).toBe('维修人分类');
         });
 
-        test('should set -1 for missing optional columns', () => {
+        test('should set null for missing optional columns', () => {
             dataParser.headers = ['工单号', '车间', '维修人', '报修时间', '维修开始时间', '维修结束时间'];
             dataParser.createColumnMapping();
             
-            expect(dataParser.columnMapping.area).toBe(-1);
-            expect(dataParser.columnMapping.repairPersonType).toBe(-1);
-            expect(dataParser.columnMapping.waitTime).toBe(-1);
-            expect(dataParser.columnMapping.repairTime).toBe(-1);
-            expect(dataParser.columnMapping.faultTime).toBe(-1);
+            expect(dataParser.columnMapping.area).toBe(null);
+            expect(dataParser.columnMapping.repairPersonType).toBe(null);
+            expect(dataParser.columnMapping.waitTime).toBe(null);
+            expect(dataParser.columnMapping.repairTime).toBe(null);
+            expect(dataParser.columnMapping.faultTime).toBe(null);
         });
     });
 
@@ -110,14 +110,30 @@ describe('DataParser', () => {
             
             const mapping = dataParser.getColumnMapping();
             expect(mapping).toBeDefined();
-            expect(mapping.workOrder).toBe(0);
-            expect(mapping.workshop).toBe(1);
-            expect(mapping.repairPerson).toBe(2);
+            expect(mapping.workOrder).toBe('工单号');
+            expect(mapping.workshop).toBe('车间');
+            expect(mapping.repairPerson).toBe('维修人');
         });
 
         test('should return empty object when not initialized', () => {
             const mapping = dataParser.getColumnMapping();
             expect(mapping).toEqual({});
+        });
+    });
+
+    describe('getHeaders', () => {
+        test('should return the headers array', () => {
+            dataParser.headers = ['工单号', '车间', '维修人', '报修时间', '维修开始时间', '维修结束时间'];
+            
+            const headers = dataParser.getHeaders();
+            expect(headers).toBeDefined();
+            expect(Array.isArray(headers)).toBe(true);
+            expect(headers).toEqual(['工单号', '车间', '维修人', '报修时间', '维修开始时间', '维修结束时间']);
+        });
+
+        test('should return empty array when not initialized', () => {
+            const headers = dataParser.getHeaders();
+            expect(headers).toEqual([]);
         });
     });
 

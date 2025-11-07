@@ -187,6 +187,14 @@ export class DataParser {
     }
 
     /**
+     * 获取表头
+     * @returns {Array} 表头数组
+     */
+    getHeaders() {
+        return this.headers;
+    }
+
+    /**
      * 获取列映射
      * @returns {Object} 列映射对象
      */

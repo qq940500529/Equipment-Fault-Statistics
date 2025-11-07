@@ -7,6 +7,7 @@ export default {
   testMatch: [
     '**/tests/**/*.test.js'
   ],
+  setupFilesAfterEnv: ['<rootDir>/tests/setup.js'],
   collectCoverageFrom: [
     'js/**/*.js',
     '!js/main.js',
