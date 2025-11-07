@@ -7,6 +7,21 @@
 
 ## [未发布]
 
+### 新增
+- CI/CD发布流水线
+  - 手动触发的release workflow
+  - 版本号验证（检查与已发布版本的冲突）
+  - 自动打包release包（仅包含核心程序文件）
+  - 排除测试、开发文档等非生产文件
+
+### 变更
+- 清理过时文档
+  - 删除Phase完成报告文件（PHASE1_COMPLETION.md, PHASE2_COMPLETION.md, PHASE3_4_COMPLETION.md）
+  - 删除开发总结文件（DEVELOPMENT_SUMMARY.md）
+  - 删除Wiki相关文件（WIKI_DOCUMENTATION.md, WIKI_SUMMARY.txt, publish-wiki.sh）
+  - 删除测试文件（test-modal.html）
+- 更新README.md，移除已删除文件的引用
+
 ### 计划中
 - Phase 5: 数据导出功能
 

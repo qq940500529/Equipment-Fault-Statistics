@@ -172,13 +172,12 @@ Equipment-Fault-Statistics/
 ├── examples/                  # 示例文件 ✅
 │   └── README.md             # 示例说明
 ├── tests/                     # 测试目录 ✅
-│   ├── unit/                 # 单元测试 (Phase 2)
+│   ├── unit/                 # 单元测试
 │   │   ├── fileUploader.test.js
 │   │   └── dataParser.test.js
 │   └── README.md             # 测试指南
-├── PHASE1_COMPLETION.md      # Phase 1 完成报告 ✅
-├── PHASE2_COMPLETION.md      # Phase 2 完成报告 ✅
 ├── CHANGELOG.md              # 变更日志 ✅
+├── LICENSE                   # MIT许可证
 └── README.md                 # 本文档
 
 ✅ = 已完成
@@ -226,7 +225,7 @@ Equipment-Fault-Statistics/
 - [ ] 性能优化
 - [ ] 正式发布
 
-详细计划请参阅 [实施计划文档](docs/IMPLEMENTATION.md)、[Phase 1 完成报告](PHASE1_COMPLETION.md) 和 [Phase 2 完成报告](PHASE2_COMPLETION.md)
+详细计划请参阅 [实施计划文档](docs/IMPLEMENTATION.md)
 
 ## GitHub功能
 
@@ -244,13 +243,11 @@ Equipment-Fault-Statistics/
 - **PR模板**: 标准化的代码审查流程
 
 ### 📚 项目文档
-- **Wiki文档**: [GitHub Wiki](https://github.com/qq940500529/Equipment-Fault-Statistics/wiki) - 完整的使用和开发文档
 - **贡献指南**: [CONTRIBUTING.md](CONTRIBUTING.md)
 - **行为准则**: [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
 - **安全政策**: [SECURITY.md](SECURITY.md)
 - **变更日志**: [CHANGELOG.md](CHANGELOG.md)
 - **许可证**: [LICENSE](LICENSE)
-- **Wiki发布指南**: [WIKI_DOCUMENTATION.md](WIKI_DOCUMENTATION.md)
 
 ### 🏷️ 标签系统
 - 类型标签: bug, enhancement, documentation
