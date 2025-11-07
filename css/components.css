@@ -452,6 +452,23 @@
     margin: 0 0.5rem;
 }
 
+/* 可点击的删除行卡片样式 */
+.deleted-rows-card {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.deleted-rows-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-color: var(--primary-color);
+}
+
+/* 删除原因列样式 */
+.deletion-reason-column {
+    width: 180px;
+}
+
 /* 响应式调整 */
 @media (max-width: 768px) {
     .progress-indicator {
