@@ -506,20 +506,18 @@ class App {
         statsContainer.innerHTML = `
             <div class="row">
                 <div class="col-md-3">
-                    <div class="card">
+                    <div class="card ${totalRowsRemoved > 0 ? 'deleted-rows-card' : ''}" ${totalRowsRemoved > 0 ? 'id="deletedTotalCard" style="cursor: pointer;"' : ''}>
                         <div class="card-body text-center">
                             <h6 class="card-title">删除合计行</h6>
                             <p class="card-text h4">${totalRowsRemoved}</p>
-                            ${totalRowsRemoved > 0 ? '<button class="btn btn-sm btn-outline-primary mt-2" id="viewDeletedTotalBtn">查看详情</button>' : ''}
                         </div>
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="card">
+                    <div class="card ${incompleteTimeRowsRemoved > 0 ? 'deleted-rows-card' : ''}" ${incompleteTimeRowsRemoved > 0 ? 'id="deletedIncompleteCard" style="cursor: pointer;"' : ''}>
                         <div class="card-body text-center">
                             <h6 class="card-title">删除不完整行</h6>
                             <p class="card-text h4">${incompleteTimeRowsRemoved}</p>
-                            ${incompleteTimeRowsRemoved > 0 ? '<button class="btn btn-sm btn-outline-primary mt-2" id="viewDeletedIncompleteBtn">查看详情</button>' : ''}
                         </div>
                     </div>
                 </div>
@@ -542,17 +540,17 @@ class App {
             </div>
         `;
         
-        // Add click handlers for the view details buttons
-        const viewDeletedTotalBtn = document.getElementById('viewDeletedTotalBtn');
-        if (viewDeletedTotalBtn) {
-            viewDeletedTotalBtn.addEventListener('click', () => {
+        // Add click handlers for the deleted row cards
+        const deletedTotalCard = document.getElementById('deletedTotalCard');
+        if (deletedTotalCard) {
+            deletedTotalCard.addEventListener('click', () => {
                 this.showDeletedTotalRows();
             });
         }
         
-        const viewDeletedIncompleteBtn = document.getElementById('viewDeletedIncompleteBtn');
-        if (viewDeletedIncompleteBtn) {
-            viewDeletedIncompleteBtn.addEventListener('click', () => {
+        const deletedIncompleteCard = document.getElementById('deletedIncompleteCard');
+        if (deletedIncompleteCard) {
+            deletedIncompleteCard.addEventListener('click', () => {
                 this.showDeletedIncompleteRows();
             });
         }
@@ -570,7 +568,7 @@ class App {
         }
         
         const headers = this.dataParser.getHeaders();
-        showDeletedRowsModal('删除的合计行', this.deletedRows.totalRows, headers);
+        showDeletedRowsModal('删除的合计行', this.deletedRows.totalRows, headers, '车间列值为"合计"');
     }
     
     /**
@@ -583,7 +581,7 @@ class App {
         }
         
         const headers = this.dataParser.getHeaders();
-        showDeletedRowsModal('删除的时间不完整行', this.deletedRows.incompleteTimeRows, headers);
+        showDeletedRowsModal('删除的时间不完整行', this.deletedRows.incompleteTimeRows, headers, '报修时间或修复时间为空');
     }
 
     /**

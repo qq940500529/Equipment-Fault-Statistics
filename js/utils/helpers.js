@@ -192,8 +192,9 @@ export function delay(ms) {
  * @param {string} title - 模态框标题
  * @param {Array} deletedRows - 删除的行数据
  * @param {Array} headers - 表头
+ * @param {string} deletionReason - 删除原因
  */
-export function showDeletedRowsModal(title, deletedRows, headers) {
+export function showDeletedRowsModal(title, deletedRows, headers, deletionReason = '') {
     // 更新模态框标题
     const modalTitle = document.getElementById('deletedRowsModalLabel');
     if (modalTitle) {
@@ -213,7 +214,7 @@ export function showDeletedRowsModal(title, deletedRows, headers) {
     if (deletedRows.length === 0) {
         const noDataRow = document.createElement('tr');
         const noDataCell = document.createElement('td');
-        noDataCell.colSpan = headers.length + 1; // +1 for the index column
+        noDataCell.colSpan = headers.length + 2; // +2 for the index column and deletion reason column
         noDataCell.className = 'text-center text-muted';
         noDataCell.textContent = '没有删除的行';
         noDataRow.appendChild(noDataCell);
@@ -234,6 +235,13 @@ export function showDeletedRowsModal(title, deletedRows, headers) {
             th.textContent = header;
             headerRow.appendChild(th);
         });
+        
+        // 添加删除原因列
+        const reasonTh = document.createElement('th');
+        reasonTh.textContent = '删除原因';
+        reasonTh.style.width = '180px';
+        headerRow.appendChild(reasonTh);
+        
         tableHeader.appendChild(headerRow);
         
         // 创建表体
@@ -253,6 +261,12 @@ export function showDeletedRowsModal(title, deletedRows, headers) {
                 td.textContent = value != null ? value : '';
                 tr.appendChild(td);
             });
+            
+            // 添加删除原因
+            const reasonTd = document.createElement('td');
+            reasonTd.textContent = deletionReason;
+            reasonTd.className = 'text-muted';
+            tr.appendChild(reasonTd);
             
             tableBody.appendChild(tr);
         });
