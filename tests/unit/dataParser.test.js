@@ -103,6 +103,24 @@ describe('DataParser', () => {
         });
     });
 
+    describe('getColumnMapping', () => {
+        test('should return the column mapping object', () => {
+            dataParser.headers = ['工单号', '车间', '维修人', '报修时间', '维修开始时间', '维修结束时间'];
+            dataParser.createColumnMapping();
+            
+            const mapping = dataParser.getColumnMapping();
+            expect(mapping).toBeDefined();
+            expect(mapping.workOrder).toBe(0);
+            expect(mapping.workshop).toBe(1);
+            expect(mapping.repairPerson).toBe(2);
+        });
+
+        test('should return empty object when not initialized', () => {
+            const mapping = dataParser.getColumnMapping();
+            expect(mapping).toEqual({});
+        });
+    });
+
     describe('getPreviewData', () => {
         test('should return empty array when no data', () => {
             const preview = dataParser.getPreviewData();
