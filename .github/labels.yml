@@ -60,6 +60,10 @@
   color: 0e8a16
   description: 准备就绪
 
+- name: status:stale
+  color: fef2c0
+  description: 长时间无活动
+
 # Component labels
 - name: component:excel
   color: d4c5f9
