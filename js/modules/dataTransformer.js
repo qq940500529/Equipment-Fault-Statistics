@@ -22,6 +22,11 @@ export class DataTransformer {
             workshopColumnSplit: false,
             repairPersonClassified: false
         };
+        // Store deleted rows for display
+        this.deletedRows = {
+            totalRows: [],
+            incompleteTimeRows: []
+        };
     }
 
     /**
@@ -66,11 +71,17 @@ export class DataTransformer {
             return;
         }
 
+        const deletedRows = [];
         this.data = this.data.filter(row => {
             const workshopValue = row[workshopKey];
-            return workshopValue !== SPECIAL_VALUES.TOTAL && workshopValue !== '合计';
+            const shouldKeep = workshopValue !== SPECIAL_VALUES.TOTAL && workshopValue !== '合计';
+            if (!shouldKeep) {
+                deletedRows.push(JSON.parse(JSON.stringify(row))); // Store deleted row
+            }
+            return shouldKeep;
         });
 
+        this.deletedRows.totalRows = deletedRows;
         this.stats.totalRowsRemoved = initialLength - this.data.length;
     }
 
@@ -204,18 +215,25 @@ export class DataTransformer {
             return;
         }
 
+        const deletedRows = [];
         this.data = this.data.filter(row => {
             const reportTime = row[reportTimeKey];
             const startTime = row[startTimeKey];
             const endTime = row[endTimeKey];
 
             // 检查三个时间字段是否都存在且有效
-            return reportTime && startTime && endTime &&
+            const shouldKeep = reportTime && startTime && endTime &&
                    isValidDate(reportTime) && 
                    isValidDate(startTime) && 
                    isValidDate(endTime);
+            
+            if (!shouldKeep) {
+                deletedRows.push(JSON.parse(JSON.stringify(row))); // Store deleted row
+            }
+            return shouldKeep;
         });
 
+        this.deletedRows.incompleteTimeRows = deletedRows;
         this.stats.incompleteTimeRowsRemoved = initialLength - this.data.length;
     }
 
@@ -236,6 +254,14 @@ export class DataTransformer {
     }
 
     /**
+     * 获取删除的行
+     * @returns {Object} 删除的行对象
+     */
+    getDeletedRows() {
+        return this.deletedRows;
+    }
+
+    /**
      * 重置转换器状态
      */
     reset() {
@@ -246,6 +272,10 @@ export class DataTransformer {
             incompleteTimeRowsRemoved: 0,
             workshopColumnSplit: false,
             repairPersonClassified: false
+        };
+        this.deletedRows = {
+            totalRows: [],
+            incompleteTimeRows: []
         };
     }
 

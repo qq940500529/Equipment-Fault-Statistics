@@ -188,6 +188,79 @@ export function delay(ms) {
 }
 
 /**
+ * 显示删除行详情模态框
+ * @param {string} title - 模态框标题
+ * @param {Array} deletedRows - 删除的行数据
+ * @param {Array} headers - 表头
+ */
+export function showDeletedRowsModal(title, deletedRows, headers) {
+    // 更新模态框标题
+    const modalTitle = document.getElementById('deletedRowsModalLabel');
+    if (modalTitle) {
+        modalTitle.textContent = title;
+    }
+    
+    // 更新表格内容
+    const tableHeader = document.getElementById('deletedRowsTableHeader');
+    const tableBody = document.getElementById('deletedRowsTableBody');
+    
+    if (!tableHeader || !tableBody) return;
+    
+    // 清空之前的内容
+    tableHeader.innerHTML = '';
+    tableBody.innerHTML = '';
+    
+    if (deletedRows.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="100" class="text-center text-muted">没有删除的行</td></tr>';
+    } else {
+        // 创建表头
+        const headerRow = document.createElement('tr');
+        
+        // 添加序号列
+        const indexTh = document.createElement('th');
+        indexTh.textContent = '#';
+        indexTh.style.width = '50px';
+        headerRow.appendChild(indexTh);
+        
+        // 添加数据列
+        headers.forEach(header => {
+            const th = document.createElement('th');
+            th.textContent = header;
+            headerRow.appendChild(th);
+        });
+        tableHeader.appendChild(headerRow);
+        
+        // 创建表体
+        deletedRows.forEach((row, index) => {
+            const tr = document.createElement('tr');
+            
+            // 添加序号
+            const indexTd = document.createElement('td');
+            indexTd.textContent = index + 1;
+            indexTd.className = 'text-center';
+            tr.appendChild(indexTd);
+            
+            // 添加数据
+            headers.forEach(header => {
+                const td = document.createElement('td');
+                const value = row[header];
+                td.textContent = value != null ? value : '';
+                tr.appendChild(td);
+            });
+            
+            tableBody.appendChild(tr);
+        });
+    }
+    
+    // 显示模态框 (使用Bootstrap 5的API)
+    const modalElement = document.getElementById('deletedRowsModal');
+    if (modalElement && typeof bootstrap !== 'undefined') {
+        const modal = new bootstrap.Modal(modalElement);
+        modal.show();
+    }
+}
+
+/**
  * 显示加载覆盖层
  * @param {string} message - 加载消息
  */

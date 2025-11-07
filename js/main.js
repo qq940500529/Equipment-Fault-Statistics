@@ -6,7 +6,7 @@
  */
 
 import { APP_CONFIG, TABLE_CONFIG, UI_CONFIG } from './config/constants.js';
-import { showInfo, showSuccess, showError, showWarning, formatFileSize, createTable, clearTable, updateProgress, escapeHtml, extractAllColumns, generateExportTimestamp, escapeCsvValue, showLoadingOverlay, hideLoadingOverlay, delay, showProcessingComplete } from './utils/helpers.js';
+import { showInfo, showSuccess, showError, showWarning, formatFileSize, createTable, clearTable, updateProgress, escapeHtml, extractAllColumns, generateExportTimestamp, escapeCsvValue, showLoadingOverlay, hideLoadingOverlay, delay, showProcessingComplete, showDeletedRowsModal } from './utils/helpers.js';
 import { FileUploader } from './modules/fileUploader.js';
 import { DataParser } from './modules/dataParser.js';
 import { DataValidator } from './modules/dataValidator.js';
@@ -22,6 +22,7 @@ class App {
         this.rawData = null;
         this.processedData = null;
         this.stats = null;
+        this.deletedRows = null;
         this.fileUploader = new FileUploader();
         this.dataParser = new DataParser();
         this.dataValidator = new DataValidator();
@@ -413,6 +414,7 @@ class App {
             const transformResult = this.dataTransformer.transform(this.rawData, columnMapping);
             this.processedData = transformResult.data;
             this.stats = transformResult.stats;
+            this.deletedRows = this.dataTransformer.getDeletedRows();
             
             updateProgress(70, '数据转换完成，准备预览...', `处理后共 ${this.processedData.length} 行数据`);
             
@@ -508,6 +510,7 @@ class App {
                         <div class="card-body text-center">
                             <h6 class="card-title">删除合计行</h6>
                             <p class="card-text h4">${totalRowsRemoved}</p>
+                            ${totalRowsRemoved > 0 ? '<button class="btn btn-sm btn-outline-primary mt-2" id="viewDeletedTotalBtn">查看详情</button>' : ''}
                         </div>
                     </div>
                 </div>
@@ -516,6 +519,7 @@ class App {
                         <div class="card-body text-center">
                             <h6 class="card-title">删除不完整行</h6>
                             <p class="card-text h4">${incompleteTimeRowsRemoved}</p>
+                            ${incompleteTimeRowsRemoved > 0 ? '<button class="btn btn-sm btn-outline-primary mt-2" id="viewDeletedIncompleteBtn">查看详情</button>' : ''}
                         </div>
                     </div>
                 </div>
@@ -536,6 +540,51 @@ class App {
                     </div>
                 </div>
             </div>
+        `;
+        
+        // Add click handlers for the view details buttons
+        const viewDeletedTotalBtn = document.getElementById('viewDeletedTotalBtn');
+        if (viewDeletedTotalBtn) {
+            viewDeletedTotalBtn.addEventListener('click', () => {
+                this.showDeletedTotalRows();
+            });
+        }
+        
+        const viewDeletedIncompleteBtn = document.getElementById('viewDeletedIncompleteBtn');
+        if (viewDeletedIncompleteBtn) {
+            viewDeletedIncompleteBtn.addEventListener('click', () => {
+                this.showDeletedIncompleteRows();
+            });
+        }
+        
+        statsContainer.style.display = 'block';
+    }
+    
+    /**
+     * 显示删除的合计行
+     */
+    showDeletedTotalRows() {
+        if (!this.deletedRows || !this.deletedRows.totalRows) {
+            showWarning('没有删除的合计行数据');
+            return;
+        }
+        
+        const headers = this.dataParser.getHeaders();
+        showDeletedRowsModal('删除的合计行', this.deletedRows.totalRows, headers);
+    }
+    
+    /**
+     * 显示删除的时间不完整行
+     */
+    showDeletedIncompleteRows() {
+        if (!this.deletedRows || !this.deletedRows.incompleteTimeRows) {
+            showWarning('没有删除的时间不完整行数据');
+            return;
+        }
+        
+        const headers = this.dataParser.getHeaders();
+        showDeletedRowsModal('删除的时间不完整行', this.deletedRows.incompleteTimeRows, headers);
+    }
         `;
         
         statsContainer.style.display = 'block';
@@ -793,6 +842,7 @@ class App {
         this.rawData = null;
         this.processedData = null;
         this.stats = null;
+        this.deletedRows = null;
         this.currentStep = 1;
         this.currentFile = null;
         this.validationResult = null;
