@@ -34,8 +34,7 @@ if [ -d "temp-wiki" ]; then
     rm -rf temp-wiki
 fi
 
-git clone "$WIKI_URL" temp-wiki
-if [ $? -ne 0 ]; then
+if ! git clone "$WIKI_URL" temp-wiki; then
     echo -e "${RED}错误: 克隆Wiki仓库失败${NC}"
     echo "请确保："
     echo "1. 已启用Wiki功能 (在仓库Settings中勾选Wikis)"
@@ -80,9 +79,19 @@ echo -e "${GREEN}✓ 更改已提交${NC}"
 echo ""
 
 echo -e "${YELLOW}步骤 4/4:${NC} 推送到GitHub..."
-git push origin master
 
-if [ $? -ne 0 ]; then
+# 检测默认分支（master或main）
+DEFAULT_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@')
+if [ -z "$DEFAULT_BRANCH" ]; then
+    # 如果检测失败，尝试master和main
+    if git show-ref --verify --quiet refs/remotes/origin/main; then
+        DEFAULT_BRANCH="main"
+    else
+        DEFAULT_BRANCH="master"
+    fi
+fi
+
+if ! git push origin "$DEFAULT_BRANCH"; then
     echo -e "${RED}错误: 推送失败${NC}"
     cd ..
     echo "临时目录保留在 temp-wiki 中，您可以手动检查"
