@@ -2,13 +2,15 @@
  * 主程序入口文件
  * Main Application Entry Point
  * 
- * Equipment Fault Statistics System v0.2.0
+ * Equipment Fault Statistics System v0.3.0
  */
 
 import { APP_CONFIG, TABLE_CONFIG } from './config/constants.js';
-import { showInfo, showSuccess, showError, formatFileSize, createTable, clearTable, updateProgress, escapeHtml } from './utils/helpers.js';
+import { showInfo, showSuccess, showError, showWarning, formatFileSize, createTable, clearTable, updateProgress, escapeHtml } from './utils/helpers.js';
 import { FileUploader } from './modules/fileUploader.js';
 import { DataParser } from './modules/dataParser.js';
+import { DataValidator } from './modules/dataValidator.js';
+import { DataTransformer } from './modules/dataTransformer.js';
 
 /**
  * 应用程序类
@@ -22,7 +24,10 @@ class App {
         this.stats = null;
         this.fileUploader = new FileUploader();
         this.dataParser = new DataParser();
+        this.dataValidator = new DataValidator();
+        this.dataTransformer = new DataTransformer();
         this.currentFile = null;
+        this.validationResult = null;
     }
 
     /**
@@ -347,9 +352,213 @@ class App {
     /**
      * 处理数据处理
      */
-    handleProcess() {
+    async handleProcess() {
+        if (!this.rawData) {
+            showError('没有可处理的数据，请先上传文件');
+            return;
+        }
+
         console.log('开始处理数据...');
-        showInfo('数据处理功能将在后续阶段实现...', 3000);
+        
+        try {
+            updateProgress(10, '正在验证数据...');
+            
+            // 步骤1: 数据验证
+            const columnMapping = this.dataParser.getColumnMapping();
+            this.validationResult = this.dataValidator.validate(this.rawData, columnMapping);
+            
+            // 显示验证结果
+            this.displayValidationResult(this.validationResult);
+            
+            if (!this.validationResult.valid) {
+                showError('数据验证失败，请检查数据并修正错误后重试');
+                updateProgress(0, '');
+                return;
+            }
+            
+            updateProgress(30, '验证通过，开始转换数据...');
+            
+            // 步骤2: 数据转换
+            const transformResult = this.dataTransformer.transform(this.rawData, columnMapping);
+            this.processedData = transformResult.data;
+            this.stats = transformResult.stats;
+            
+            updateProgress(70, '数据转换完成，准备预览...');
+            
+            // 显示处理统计
+            this.displayProcessingStats(transformResult.stats);
+            
+            // 显示处理后数据预览
+            this.displayProcessedDataPreview();
+            
+            updateProgress(100, '完成！');
+            
+            showSuccess(`数据处理成功！处理后共 ${this.processedData.length} 行数据`, 3000);
+            
+        } catch (error) {
+            console.error('数据处理错误:', error);
+            showError('数据处理失败: ' + error.message);
+            updateProgress(0, '');
+        }
+    }
+
+    /**
+     * 显示验证结果
+     * @param {Object} validationResult - 验证结果
+     */
+    displayValidationResult(validationResult) {
+        const validationContainer = document.getElementById('validationResult');
+        if (!validationContainer) return;
+        
+        validationContainer.innerHTML = '';
+        
+        // 显示验证状态
+        const statusDiv = document.createElement('div');
+        statusDiv.className = validationResult.valid ? 'alert alert-success' : 'alert alert-danger';
+        statusDiv.innerHTML = `<strong>${validationResult.valid ? '✓ 数据验证通过' : '✗ 数据验证失败'}</strong>`;
+        validationContainer.appendChild(statusDiv);
+        
+        // 显示错误信息
+        if (validationResult.errors.length > 0) {
+            const errorsDiv = document.createElement('div');
+            errorsDiv.className = 'alert alert-danger';
+            errorsDiv.innerHTML = '<strong>错误:</strong><ul class="mb-0">';
+            validationResult.errors.forEach(error => {
+                errorsDiv.innerHTML += `<li>${escapeHtml(error)}</li>`;
+            });
+            errorsDiv.innerHTML += '</ul>';
+            validationContainer.appendChild(errorsDiv);
+        }
+        
+        // 显示警告信息
+        if (validationResult.warnings.length > 0) {
+            const warningsDiv = document.createElement('div');
+            warningsDiv.className = 'alert alert-warning';
+            warningsDiv.innerHTML = '<strong>警告:</strong><ul class="mb-0">';
+            validationResult.warnings.forEach(warning => {
+                warningsDiv.innerHTML += `<li>${escapeHtml(warning)}</li>`;
+            });
+            warningsDiv.innerHTML += '</ul>';
+            validationContainer.appendChild(warningsDiv);
+        }
+        
+        validationContainer.style.display = 'block';
+    }
+
+    /**
+     * 显示处理统计信息
+     * @param {Object} stats - 处理统计信息
+     */
+    displayProcessingStats(stats) {
+        const statsContainer = document.getElementById('processingStats');
+        if (!statsContainer) return;
+        
+        // Ensure all stats are numbers to prevent XSS
+        const totalRowsRemoved = Number(stats.totalRowsRemoved) || 0;
+        const incompleteTimeRowsRemoved = Number(stats.incompleteTimeRowsRemoved) || 0;
+        const workshopColumnSplit = stats.workshopColumnSplit ? '✓' : '-';
+        const repairPersonClassified = stats.repairPersonClassified ? '✓' : '-';
+        
+        statsContainer.innerHTML = `
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h6 class="card-title">删除合计行</h6>
+                            <p class="card-text h4">${totalRowsRemoved}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h6 class="card-title">删除不完整行</h6>
+                            <p class="card-text h4">${incompleteTimeRowsRemoved}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h6 class="card-title">车间列分列</h6>
+                            <p class="card-text h4">${workshopColumnSplit}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h6 class="card-title">维修人分类</h6>
+                            <p class="card-text h4">${repairPersonClassified}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        statsContainer.style.display = 'block';
+    }
+
+    /**
+     * 显示处理后数据预览
+     */
+    displayProcessedDataPreview() {
+        const tableHeader = document.getElementById('resultTableHeader');
+        const tableBody = document.getElementById('resultTableBody');
+        
+        if (!tableHeader || !tableBody) return;
+        
+        // 清空之前的内容
+        tableHeader.innerHTML = '';
+        tableBody.innerHTML = '';
+        
+        // 获取列头
+        const headers = this.dataParser.getHeaders();
+        
+        // 获取预览数据（前50行）
+        const previewData = this.processedData.slice(0, TABLE_CONFIG.PREVIEW_ROWS);
+        
+        // 创建表头
+        const headerRow = document.createElement('tr');
+        headerRow.className = 'table-dark';
+        
+        // 添加序号列
+        const indexTh = document.createElement('th');
+        indexTh.textContent = '#';
+        indexTh.style.width = '50px';
+        headerRow.appendChild(indexTh);
+        
+        // 添加数据列
+        headers.forEach(header => {
+            const th = document.createElement('th');
+            th.textContent = header;
+            headerRow.appendChild(th);
+        });
+        tableHeader.appendChild(headerRow);
+        
+        // 创建表体
+        previewData.forEach((row, index) => {
+            const tr = document.createElement('tr');
+            
+            // 添加序号
+            const indexTd = document.createElement('td');
+            indexTd.textContent = index + 1;
+            indexTd.className = 'text-center';
+            tr.appendChild(indexTd);
+            
+            // 添加数据
+            headers.forEach(header => {
+                const td = document.createElement('td');
+                const value = row[header];
+                td.textContent = value != null ? value : '';
+                tr.appendChild(td);
+            });
+            
+            tableBody.appendChild(tr);
+        });
+        
+        // 显示第四步
+        this.showStep(4);
     }
 
     /**
@@ -388,10 +597,13 @@ class App {
         this.stats = null;
         this.currentStep = 1;
         this.currentFile = null;
+        this.validationResult = null;
         
         // 重置模块
         this.fileUploader.reset();
         this.dataParser.reset();
+        this.dataValidator.reset();
+        this.dataTransformer.reset();
         
         // 重置文件输入
         const fileInput = document.getElementById('fileInput');
@@ -416,6 +628,24 @@ class App {
         if (dataPreview) {
             dataPreview.style.display = 'none';
         }
+        
+        // 隐藏验证结果
+        const validationResult = document.getElementById('validationResult');
+        if (validationResult) {
+            validationResult.style.display = 'none';
+        }
+        
+        // 隐藏处理统计
+        const processingStats = document.getElementById('processingStats');
+        if (processingStats) {
+            processingStats.style.display = 'none';
+        }
+        
+        // 清空结果表格
+        const resultTableHeader = document.getElementById('resultTableHeader');
+        const resultTableBody = document.getElementById('resultTableBody');
+        if (resultTableHeader) resultTableHeader.innerHTML = '';
+        if (resultTableBody) resultTableBody.innerHTML = '';
         
         // 隐藏步骤2-4
         ['step-2', 'step-3', 'step-4'].forEach(stepId => {
