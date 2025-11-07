@@ -185,6 +185,14 @@ export class DataParser {
     }
 
     /**
+     * 获取列映射
+     * @returns {Object} 列映射对象
+     */
+    getColumnMapping() {
+        return this.columnMapping;
+    }
+
+    /**
      * 获取预览数据（前N行）
      * @param {number} limit - 限制行数，默认使用配置值
      * @returns {Array} 预览数据
