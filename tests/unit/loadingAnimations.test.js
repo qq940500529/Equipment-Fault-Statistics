@@ -4,7 +4,7 @@
  */
 
 import { describe, test, expect, beforeEach } from '@jest/globals';
-import { showLoadingOverlay, hideLoadingOverlay, updateProgress } from '../../js/utils/helpers.js';
+import { showLoadingOverlay, hideLoadingOverlay, updateProgress, delay } from '../../js/utils/helpers.js';
 
 describe('Loading Animations', () => {
     beforeEach(() => {
@@ -143,6 +143,15 @@ describe('Loading Animations', () => {
             expect(subStatusText.textContent).toBe('');
         });
 
+        test('应该清空状态文本当传入空字符串时', () => {
+            const statusText = document.getElementById('processingStatusText');
+            statusText.textContent = '旧的状态';
+            
+            updateProgress(50, '');
+            
+            expect(statusText.textContent).toBe('');
+        });
+
         test('应该处理0%进度', () => {
             const progressBar = document.getElementById('progressBar');
             
@@ -186,6 +195,23 @@ describe('Loading Animations', () => {
                 showLoadingOverlay('测试');
                 hideLoadingOverlay();
             }).not.toThrow();
+        });
+    });
+
+    describe('delay', () => {
+        test('应该在指定时间后解析', async () => {
+            const startTime = Date.now();
+            await delay(100);
+            const elapsed = Date.now() - startTime;
+            
+            // 允许一些误差
+            expect(elapsed).toBeGreaterThanOrEqual(90);
+            expect(elapsed).toBeLessThan(150);
+        });
+
+        test('应该返回Promise', () => {
+            const result = delay(10);
+            expect(result).toBeInstanceOf(Promise);
         });
     });
 });

@@ -141,14 +141,23 @@ export function updateProgress(percentage, text = '', subText = '') {
     }
     
     const statusText = document.getElementById('processingStatusText');
-    if (statusText && text) {
-        statusText.textContent = text;
+    if (statusText) {
+        statusText.textContent = text !== undefined ? text : '';
     }
     
     const subStatusText = document.getElementById('processingSubStatus');
     if (subStatusText) {
         subStatusText.textContent = subText || '';
     }
+}
+
+/**
+ * 延迟执行
+ * @param {number} ms - 延迟时间（毫秒）
+ * @returns {Promise} Promise对象
+ */
+export function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 /**
@@ -434,6 +443,7 @@ export default {
     updateProgress,
     showLoadingOverlay,
     hideLoadingOverlay,
+    delay,
     deepClone,
     debounce,
     throttle,
