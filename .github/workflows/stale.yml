@@ -1,0 +1,38 @@
+name: Close Stale Issues and PRs
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # 每天运行一次
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v9
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          
+          # Issue配置
+          stale-issue-message: '这个Issue已经60天没有活动。如果仍然相关，请留言更新。否则将在7天后自动关闭。'
+          close-issue-message: '由于长时间无活动，此Issue已自动关闭。如果问题仍然存在，请重新打开或创建新Issue。'
+          days-before-issue-stale: 60
+          days-before-issue-close: 7
+          stale-issue-label: 'status:stale'
+          exempt-issue-labels: 'status:blocked,priority:high,status:in-progress'
+          
+          # PR配置
+          stale-pr-message: '这个PR已经30天没有活动。如果仍在进行中，请更新。否则将在7天后自动关闭。'
+          close-pr-message: '由于长时间无活动，此PR已自动关闭。如果仍需合并，请重新打开。'
+          days-before-pr-stale: 30
+          days-before-pr-close: 7
+          stale-pr-label: 'status:stale'
+          exempt-pr-labels: 'status:blocked,priority:high,status:in-progress'
+          
+          # 其他配置
+          ascending: true
+          operations-per-run: 100

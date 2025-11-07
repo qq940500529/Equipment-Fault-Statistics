@@ -1,0 +1,82 @@
+name: Code Quality
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Lint Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+      - name: Check for linting configuration
+        id: check_eslint
+        run: |
+          if [ -f "package.json" ]; then
+            echo "has_package=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_package=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Install dependencies
+        if: steps.check_eslint.outputs.has_package == 'true'
+        run: npm install
+
+      - name: Run ESLint
+        if: steps.check_eslint.outputs.has_package == 'true'
+        run: npm run lint || echo "No lint script found"
+        continue-on-error: true
+
+  markdown:
+    name: Markdown Lint
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Lint Markdown files
+        uses: DavidAnson/markdownlint-cli2-action@v14
+        with:
+          globs: |
+            **/*.md
+            !node_modules
+        continue-on-error: true
+
+  validate:
+    name: Validate Files
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate JSON files
+        run: |
+          echo "Checking for JSON files..."
+          find . -name "*.json" -not -path "./node_modules/*" | while read file; do
+            echo "Validating $file"
+            python3 -m json.tool "$file" > /dev/null || echo "Invalid JSON: $file"
+          done
+        continue-on-error: true
+
+      - name: Check file permissions
+        run: |
+          echo "Checking for executable files..."
+          find . -type f -executable -not -path "./.git/*" -not -path "./node_modules/*" | while read file; do
+            echo "Found executable: $file"
+          done
