@@ -9,6 +9,9 @@ dist/
 build/
 *.min.js
 *.min.css
+# But allow library files
+!lib/*.min.js
+!lib/*.min.css
 
 # IDE and editors
 .vscode/
