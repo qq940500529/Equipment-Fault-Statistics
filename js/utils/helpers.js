@@ -70,10 +70,17 @@ function showMessage(message, type, duration) {
     alertDiv.style.minWidth = '300px';
     alertDiv.setAttribute('role', 'alert');
     
-    alertDiv.innerHTML = `
-        ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    `;
+    // 安全地设置消息内容（防止XSS）
+    const messageText = document.createTextNode(message);
+    alertDiv.appendChild(messageText);
+    
+    // 添加关闭按钮
+    const closeButton = document.createElement('button');
+    closeButton.type = 'button';
+    closeButton.className = 'btn-close';
+    closeButton.setAttribute('data-bs-dismiss', 'alert');
+    closeButton.setAttribute('aria-label', 'Close');
+    alertDiv.appendChild(closeButton);
     
     // 添加到页面
     document.body.appendChild(alertDiv);
