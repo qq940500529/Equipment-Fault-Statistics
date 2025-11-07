@@ -453,13 +453,19 @@ class App {
         const statsContainer = document.getElementById('processingStats');
         if (!statsContainer) return;
         
+        // Ensure all stats are numbers to prevent XSS
+        const totalRowsRemoved = Number(stats.totalRowsRemoved) || 0;
+        const incompleteTimeRowsRemoved = Number(stats.incompleteTimeRowsRemoved) || 0;
+        const workshopColumnSplit = stats.workshopColumnSplit ? '✓' : '-';
+        const repairPersonClassified = stats.repairPersonClassified ? '✓' : '-';
+        
         statsContainer.innerHTML = `
             <div class="row">
                 <div class="col-md-3">
                     <div class="card">
                         <div class="card-body text-center">
                             <h6 class="card-title">删除合计行</h6>
-                            <p class="card-text h4">${stats.totalRowsRemoved}</p>
+                            <p class="card-text h4">${totalRowsRemoved}</p>
                         </div>
                     </div>
                 </div>
@@ -467,7 +473,7 @@ class App {
                     <div class="card">
                         <div class="card-body text-center">
                             <h6 class="card-title">删除不完整行</h6>
-                            <p class="card-text h4">${stats.incompleteTimeRowsRemoved}</p>
+                            <p class="card-text h4">${incompleteTimeRowsRemoved}</p>
                         </div>
                     </div>
                 </div>
@@ -475,7 +481,7 @@ class App {
                     <div class="card">
                         <div class="card-body text-center">
                             <h6 class="card-title">车间列分列</h6>
-                            <p class="card-text h4">${stats.workshopColumnSplit ? '✓' : '-'}</p>
+                            <p class="card-text h4">${workshopColumnSplit}</p>
                         </div>
                     </div>
                 </div>
@@ -483,7 +489,7 @@ class App {
                     <div class="card">
                         <div class="card-body text-center">
                             <h6 class="card-title">维修人分类</h6>
-                            <p class="card-text h4">${stats.repairPersonClassified ? '✓' : '-'}</p>
+                            <p class="card-text h4">${repairPersonClassified}</p>
                         </div>
                     </div>
                 </div>
