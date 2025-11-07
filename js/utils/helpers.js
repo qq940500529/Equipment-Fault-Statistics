@@ -314,6 +314,37 @@ export function createTable(headers, rows, container) {
     container.appendChild(table);
 }
 
+/**
+ * 从数据数组中提取所有列名（按照出现顺序）
+ * @param {Array} data - 数据数组
+ * @param {Array} preferredOrder - 优先的列顺序（可选）
+ * @returns {Array} 列名数组
+ */
+export function extractAllColumns(data, preferredOrder = []) {
+    if (!data || data.length === 0) {
+        return preferredOrder;
+    }
+    
+    // 收集所有列名（保持顺序）
+    const allColumns = new Set();
+    
+    // 首先添加优先顺序的列（如果它们存在于数据中）
+    for (const col of preferredOrder) {
+        if (data.some(row => col in row)) {
+            allColumns.add(col);
+        }
+    }
+    
+    // 然后添加数据中的其他列
+    for (const row of data) {
+        for (const key of Object.keys(row)) {
+            allColumns.add(key);
+        }
+    }
+    
+    return Array.from(allColumns);
+}
+
 // 导出所有函数
 export default {
     formatFileSize,
@@ -334,5 +365,6 @@ export default {
     validateFileType,
     validateFileSize,
     clearTable,
-    createTable
+    createTable,
+    extractAllColumns
 };
