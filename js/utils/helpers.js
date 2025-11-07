@@ -5,6 +5,8 @@
  * 提供通用的辅助函数
  */
 
+import { UI_CONFIG } from '../config/constants.js';
+
 /**
  * 格式化文件大小
  * @param {number} bytes - 字节数
@@ -128,13 +130,62 @@ export function hideElement(element) {
  * 更新进度条
  * @param {number} percentage - 进度百分比（0-100）
  * @param {string} text - 进度文本
+ * @param {string} subText - 子文本（可选）
  */
-export function updateProgress(percentage, text = '') {
+export function updateProgress(percentage, text = '', subText = '') {
     const progressBar = document.getElementById('progressBar');
     if (progressBar) {
         progressBar.style.width = `${percentage}%`;
         progressBar.setAttribute('aria-valuenow', percentage);
         progressBar.textContent = text || `${percentage}%`;
+    }
+    
+    const statusText = document.getElementById('processingStatusText');
+    if (statusText) {
+        statusText.textContent = text !== undefined ? text : '';
+    }
+    
+    const subStatusText = document.getElementById('processingSubStatus');
+    if (subStatusText) {
+        subStatusText.textContent = subText || '';
+    }
+}
+
+/**
+ * 延迟执行
+ * @param {number} ms - 延迟时间（毫秒）
+ * @returns {Promise} Promise对象
+ */
+export function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
+ * 显示加载覆盖层
+ * @param {string} message - 加载消息
+ */
+export function showLoadingOverlay(message = '正在加载...') {
+    const overlay = document.getElementById('loadingOverlay');
+    if (overlay) {
+        const loadingText = overlay.querySelector('.loading-text');
+        if (loadingText) {
+            loadingText.textContent = message;
+        }
+        overlay.classList.remove('hidden');
+        overlay.style.display = 'flex';
+    }
+}
+
+/**
+ * 隐藏加载覆盖层
+ */
+export function hideLoadingOverlay() {
+    const overlay = document.getElementById('loadingOverlay');
+    if (overlay) {
+        overlay.classList.add('hidden');
+        setTimeout(() => {
+            overlay.style.display = 'none';
+        }, UI_CONFIG.LOADING_TRANSITION_MS);
     }
 }
 
@@ -390,6 +441,9 @@ export default {
     showElement,
     hideElement,
     updateProgress,
+    showLoadingOverlay,
+    hideLoadingOverlay,
+    delay,
     deepClone,
     debounce,
     throttle,
