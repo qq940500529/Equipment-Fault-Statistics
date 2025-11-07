@@ -16,8 +16,8 @@ jobs:
     steps:
       - uses: actions/first-interaction@v1.3.0
         with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          issue-message: |
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          issue_message: |
             👋 感谢您提交第一个Issue！
             
             我们非常重视您的反馈。维护者会尽快查看并回复。
@@ -29,7 +29,7 @@ jobs:
             
             再次感谢您的贡献！🎉
             
-          pr-message: |
+          pr_message: |
             🎉 感谢您提交第一个Pull Request！
             
             我们很高兴看到您的贡献。维护者会审查您的代码并提供反馈。
