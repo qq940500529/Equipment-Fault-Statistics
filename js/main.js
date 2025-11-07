@@ -6,7 +6,7 @@
  */
 
 import { APP_CONFIG, TABLE_CONFIG, UI_CONFIG } from './config/constants.js';
-import { showInfo, showSuccess, showError, showWarning, formatFileSize, createTable, clearTable, updateProgress, escapeHtml, extractAllColumns, generateExportTimestamp, escapeCsvValue, showLoadingOverlay, hideLoadingOverlay, delay } from './utils/helpers.js';
+import { showInfo, showSuccess, showError, showWarning, formatFileSize, createTable, clearTable, updateProgress, escapeHtml, extractAllColumns, generateExportTimestamp, escapeCsvValue, showLoadingOverlay, hideLoadingOverlay, delay, showProcessingComplete } from './utils/helpers.js';
 import { FileUploader } from './modules/fileUploader.js';
 import { DataParser } from './modules/dataParser.js';
 import { DataValidator } from './modules/dataValidator.js';
@@ -189,6 +189,9 @@ class App {
             this.displayDataPreview(parseResult);
             
             updateProgress(100, '完成！', '数据加载成功');
+            
+            // 显示处理完成状态
+            showProcessingComplete();
             
             // 短暂延迟以显示完成状态
             await delay(UI_CONFIG.COMPLETION_DELAY_MS);
@@ -420,6 +423,9 @@ class App {
             this.displayProcessedDataPreview();
             
             updateProgress(100, '完成！', '数据处理成功');
+            
+            // 显示处理完成状态
+            showProcessingComplete();
             
             // 短暂延迟以显示完成状态
             await delay(UI_CONFIG.COMPLETION_DELAY_MS);

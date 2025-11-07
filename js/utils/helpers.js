@@ -152,6 +152,33 @@ export function updateProgress(percentage, text = '', subText = '') {
 }
 
 /**
+ * 显示处理完成状态
+ * 更新步骤3的UI，显示处理完成图标和文本
+ */
+export function showProcessingComplete() {
+    // 更新标题
+    const step3 = document.getElementById('step-3');
+    if (step3) {
+        const cardHeader = step3.querySelector('.card-header h3');
+        if (cardHeader) {
+            cardHeader.innerHTML = '<span class="badge bg-success">步骤 3</span> 处理完成';
+        }
+    }
+    
+    // 隐藏进度条
+    const progressContainer = step3?.querySelector('.progress');
+    if (progressContainer) {
+        progressContainer.style.display = 'none';
+    }
+    
+    // 替换旋转加载圈为绿色对勾图标
+    const spinnerContainer = step3?.querySelector('.text-center.mb-3');
+    if (spinnerContainer) {
+        spinnerContainer.innerHTML = '<div class="completion-icon"></div>';
+    }
+}
+
+/**
  * 延迟执行
  * @param {number} ms - 延迟时间（毫秒）
  * @returns {Promise} Promise对象
