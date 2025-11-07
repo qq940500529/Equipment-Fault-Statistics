@@ -88,15 +88,43 @@ jobs:
             echo "Latest release version: $LATEST_RELEASE"
             echo "New version: $VERSION"
             
-            # Simple version comparison (works for semantic versioning)
+            # Check if versions are identical
             if [ "$VERSION" = "$LATEST_RELEASE" ]; then
               echo "❌ Error: Version $VERSION is the same as the latest release"
               exit 1
             fi
             
-            # Note: This is a basic check. For production, consider using semver comparison
-            echo "⚠️  Warning: Please ensure $VERSION is newer than $LATEST_RELEASE"
-            echo "✅ Proceeding with release creation"
+            # Semantic version comparison function
+            compare_versions() {
+                local ver1=$1
+                local ver2=$2
+                
+                # Split versions into arrays
+                IFS='.' read -ra V1 <<< "$ver1"
+                IFS='.' read -ra V2 <<< "$ver2"
+                
+                # Compare major, minor, patch
+                for i in 0 1 2; do
+                    local v1_part=${V1[$i]:-0}
+                    local v2_part=${V2[$i]:-0}
+                    
+                    if [ "$v1_part" -gt "$v2_part" ]; then
+                        return 0  # ver1 > ver2
+                    elif [ "$v1_part" -lt "$v2_part" ]; then
+                        return 1  # ver1 < ver2
+                    fi
+                done
+                
+                return 2  # versions are equal
+            }
+            
+            if compare_versions "$VERSION" "$LATEST_RELEASE"; then
+              echo "✅ New version $VERSION is newer than latest release $LATEST_RELEASE"
+            else
+              echo "❌ Error: New version $VERSION is not newer than latest release $LATEST_RELEASE"
+              echo "Please update package.json with a version number higher than $LATEST_RELEASE"
+              exit 1
+            fi
           else
             echo "ℹ️  No previous releases found. This will be the first release."
           fi
@@ -153,8 +181,8 @@ jobs:
         run: |
           VERSION="${{ steps.package_version.outputs.version }}"
           
-          cat > release_notes.md << 'EOF'
-          ## 设备故障统计系统 v$VERSION
+          cat > release_notes.md << EOF
+          ## 设备故障统计系统 v${VERSION}
           
           ### 📦 发布说明
           
@@ -169,26 +197,26 @@ jobs:
           
           ### 📥 使用方法
           
-          1. 下载并解压 `equipment-fault-statistics-v$VERSION.zip`
-          2. 双击打开 `index.html` 文件
+          1. 下载并解压 \`equipment-fault-statistics-v${VERSION}.zip\`
+          2. 双击打开 \`index.html\` 文件
           3. 按照界面提示上传Excel文件并处理数据
           
           ### 📦 包含内容
           
-          - `index.html` - 应用主页面
-          - `css/` - 样式文件
-          - `js/` - JavaScript源代码
-          - `lib/` - 第三方库（支持离线使用）
-          - `README.md` - 使用说明
-          - `LICENSE` - MIT许可证
-          - `CHANGELOG.md` - 变更日志
+          - \`index.html\` - 应用主页面
+          - \`css/\` - 样式文件
+          - \`js/\` - JavaScript源代码
+          - \`lib/\` - 第三方库（支持离线使用）
+          - \`README.md\` - 使用说明
+          - \`LICENSE\` - MIT许可证
+          - \`CHANGELOG.md\` - 变更日志
           
           ### 🔍 验证下载
           
           使用 SHA256 校验和验证下载完整性：
-          ```bash
-          sha256sum -c equipment-fault-statistics-v$VERSION.zip.sha256
-          ```
+          \`\`\`bash
+          sha256sum -c equipment-fault-statistics-v${VERSION}.zip.sha256
+          \`\`\`
           
           ### 📚 文档
           
@@ -204,9 +232,6 @@ jobs:
           - 数据不会上传到服务器，完全本地处理
           
           EOF
-          
-          # Replace version placeholder
-          sed -i "s/\$VERSION/$VERSION/g" release_notes.md
           
           echo "Release notes generated"
 
