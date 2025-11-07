@@ -152,12 +152,118 @@ export function updateProgress(percentage, text = '', subText = '') {
 }
 
 /**
+ * 显示处理完成状态
+ * 更新步骤3的UI，显示处理完成图标和文本
+ */
+export function showProcessingComplete() {
+    // 更新标题
+    const step3 = document.getElementById('step-3');
+    if (step3) {
+        const cardHeader = step3.querySelector('.card-header h3');
+        if (cardHeader) {
+            cardHeader.innerHTML = '<span class="badge bg-success">步骤 3</span> 处理完成';
+        }
+    }
+    
+    // 隐藏进度条
+    const progressContainer = step3?.querySelector('.progress');
+    if (progressContainer) {
+        progressContainer.style.display = 'none';
+    }
+    
+    // 替换旋转加载圈为绿色对勾图标
+    const spinnerContainer = step3?.querySelector('.text-center.mb-3');
+    if (spinnerContainer) {
+        spinnerContainer.innerHTML = '<div class="completion-icon"></div>';
+    }
+}
+
+/**
  * 延迟执行
  * @param {number} ms - 延迟时间（毫秒）
  * @returns {Promise} Promise对象
  */
 export function delay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
+ * 显示删除行详情模态框
+ * @param {string} title - 模态框标题
+ * @param {Array} deletedRows - 删除的行数据
+ * @param {Array} headers - 表头
+ */
+export function showDeletedRowsModal(title, deletedRows, headers) {
+    // 更新模态框标题
+    const modalTitle = document.getElementById('deletedRowsModalLabel');
+    if (modalTitle) {
+        modalTitle.textContent = title;
+    }
+    
+    // 更新表格内容
+    const tableHeader = document.getElementById('deletedRowsTableHeader');
+    const tableBody = document.getElementById('deletedRowsTableBody');
+    
+    if (!tableHeader || !tableBody) return;
+    
+    // 清空之前的内容
+    tableHeader.innerHTML = '';
+    tableBody.innerHTML = '';
+    
+    if (deletedRows.length === 0) {
+        const noDataRow = document.createElement('tr');
+        const noDataCell = document.createElement('td');
+        noDataCell.colSpan = headers.length + 1; // +1 for the index column
+        noDataCell.className = 'text-center text-muted';
+        noDataCell.textContent = '没有删除的行';
+        noDataRow.appendChild(noDataCell);
+        tableBody.appendChild(noDataRow);
+    } else {
+        // 创建表头
+        const headerRow = document.createElement('tr');
+        
+        // 添加序号列
+        const indexTh = document.createElement('th');
+        indexTh.textContent = '#';
+        indexTh.style.width = '50px';
+        headerRow.appendChild(indexTh);
+        
+        // 添加数据列
+        headers.forEach(header => {
+            const th = document.createElement('th');
+            th.textContent = header;
+            headerRow.appendChild(th);
+        });
+        tableHeader.appendChild(headerRow);
+        
+        // 创建表体
+        deletedRows.forEach((row, index) => {
+            const tr = document.createElement('tr');
+            
+            // 添加序号
+            const indexTd = document.createElement('td');
+            indexTd.textContent = index + 1;
+            indexTd.className = 'text-center';
+            tr.appendChild(indexTd);
+            
+            // 添加数据
+            headers.forEach(header => {
+                const td = document.createElement('td');
+                const value = row[header];
+                td.textContent = value != null ? value : '';
+                tr.appendChild(td);
+            });
+            
+            tableBody.appendChild(tr);
+        });
+    }
+    
+    // 显示模态框 (使用Bootstrap 5的API)
+    const modalElement = document.getElementById('deletedRowsModal');
+    if (modalElement && typeof bootstrap !== 'undefined') {
+        const modal = new bootstrap.Modal(modalElement);
+        modal.show();
+    }
 }
 
 /**
