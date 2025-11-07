@@ -28,39 +28,56 @@ describe('FileUploader', () => {
     });
 
     describe('validateFile', () => {
-        test('should return false for null file', () => {
+        test('should return invalid result for null file', () => {
             const result = fileUploader.validateFile(null);
-            expect(result).toBe(false);
+            expect(result.valid).toBe(false);
+            expect(result.error).toBeDefined();
         });
 
-        test('should return false for undefined file', () => {
+        test('should return invalid result for undefined file', () => {
             const result = fileUploader.validateFile(undefined);
-            expect(result).toBe(false);
+            expect(result.valid).toBe(false);
+            expect(result.error).toBeDefined();
         });
 
-        test('should return true for valid .xlsx file', () => {
+        test('should return valid result for valid .xlsx file', () => {
             const mockFile = new File(['test'], 'test.xlsx', {
                 type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
             });
             const result = fileUploader.validateFile(mockFile);
-            expect(result).toBe(true);
+            expect(result.valid).toBe(true);
+            expect(result.error).toBeNull();
         });
 
-        test('should return true for valid .xls file', () => {
+        test('should return valid result for valid .xls file', () => {
             const mockFile = new File(['test'], 'test.xls', {
                 type: 'application/vnd.ms-excel'
             });
             const result = fileUploader.validateFile(mockFile);
-            expect(result).toBe(true);
+            expect(result.valid).toBe(true);
+            expect(result.error).toBeNull();
         });
 
-        test('should return false for file too large', () => {
+        test('should return invalid result for file too large', () => {
             const largeContent = new Array(FILE_CONFIG.MAX_FILE_SIZE + 1).fill('a').join('');
             const mockFile = new File([largeContent], 'test.xlsx', {
                 type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
             });
             const result = fileUploader.validateFile(mockFile);
-            expect(result).toBe(false);
+            expect(result.valid).toBe(false);
+            expect(result.error).toBeDefined();
+            expect(result.error).toContain('实际大小');
+        });
+
+        test('should return invalid result with detailed error for invalid file type', () => {
+            const mockFile = new File(['test'], 'test.txt', {
+                type: 'text/plain'
+            });
+            const result = fileUploader.validateFile(mockFile);
+            expect(result.valid).toBe(false);
+            expect(result.error).toBeDefined();
+            expect(result.error).toContain('test.txt');
+            expect(result.error).toContain('.xlsx');
         });
     });
 

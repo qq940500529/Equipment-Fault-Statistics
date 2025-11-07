@@ -21,28 +21,32 @@ export class FileUploader {
     /**
      * 验证文件
      * @param {File} file - 要验证的文件
-     * @returns {boolean} 验证是否通过
+     * @returns {Object} 验证结果 {valid: boolean, error: string}
      */
     validateFile(file) {
         if (!file) {
-            showError(MESSAGES.ERROR.NO_FILE);
-            return false;
+            const errorMsg = MESSAGES.ERROR.NO_FILE;
+            showError(errorMsg);
+            return { valid: false, error: errorMsg };
         }
 
         // 验证文件类型
-        if (!validateFileType(file, FILE_CONFIG.ALLOWED_TYPES)) {
-            showError(MESSAGES.ERROR.INVALID_FILE_TYPE);
-            return false;
+        if (!validateFileType(file, FILE_CONFIG.ALLOWED_EXTENSIONS)) {
+            const errorMsg = `${MESSAGES.ERROR.INVALID_FILE_TYPE}。文件名：${file.name}，当前扩展名不在允许列表中（${FILE_CONFIG.ALLOWED_EXTENSIONS.join(', ')}）`;
+            showError(errorMsg);
+            return { valid: false, error: errorMsg };
         }
 
         // 验证文件大小
         if (!validateFileSize(file, FILE_CONFIG.MAX_FILE_SIZE)) {
             const maxSizeMB = FILE_CONFIG.MAX_FILE_SIZE / (1024 * 1024);
-            showError(MESSAGES.ERROR.FILE_TOO_LARGE.replace('{size}', maxSizeMB));
-            return false;
+            const actualSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+            const errorMsg = MESSAGES.ERROR.FILE_TOO_LARGE.replace('{size}', maxSizeMB) + `。实际大小：${actualSizeMB}MB`;
+            showError(errorMsg);
+            return { valid: false, error: errorMsg };
         }
 
-        return true;
+        return { valid: true, error: null };
     }
 
     /**
@@ -52,8 +56,9 @@ export class FileUploader {
      */
     readFile(file) {
         return new Promise((resolve, reject) => {
-            if (!this.validateFile(file)) {
-                reject(new Error(MESSAGES.ERROR.INVALID_FILE));
+            const validationResult = this.validateFile(file);
+            if (!validationResult.valid) {
+                reject(new Error(validationResult.error));
                 return;
             }
 
@@ -64,8 +69,9 @@ export class FileUploader {
             };
 
             this.reader.onerror = (e) => {
-                showError(MESSAGES.ERROR.FILE_READ_ERROR);
-                reject(new Error(MESSAGES.ERROR.FILE_READ_ERROR));
+                const errorMsg = `${MESSAGES.ERROR.FILE_READ_ERROR}。文件名：${file.name}`;
+                showError(errorMsg);
+                reject(new Error(errorMsg));
             };
 
             // 读取文件为ArrayBuffer，用于SheetJS解析
