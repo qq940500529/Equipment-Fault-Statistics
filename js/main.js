@@ -2,7 +2,7 @@
  * 主程序入口文件
  * Main Application Entry Point
  * 
- * Equipment Fault Statistics System v0.2.0
+ * Equipment Fault Statistics System v0.3.0
  */
 
 import { APP_CONFIG, TABLE_CONFIG } from './config/constants.js';
