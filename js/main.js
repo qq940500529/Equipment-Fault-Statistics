@@ -503,39 +503,35 @@ class App {
         const workshopColumnSplit = stats.workshopColumnSplit ? '✓' : '-';
         const repairPersonClassified = stats.repairPersonClassified ? '✓' : '-';
         
+        // Helper function to generate card HTML
+        const generateCardHtml = (title, count, cardId = null) => {
+            const isClickable = cardId && count > 0;
+            const cardClass = isClickable ? 'card deleted-rows-card' : 'card';
+            const cardAttrs = isClickable ? `id="${cardId}"` : '';
+            
+            return `
+                <div class="${cardClass}" ${cardAttrs}>
+                    <div class="card-body text-center">
+                        <h6 class="card-title">${title}</h6>
+                        <p class="card-text h4">${count}</p>
+                    </div>
+                </div>
+            `;
+        };
+        
         statsContainer.innerHTML = `
             <div class="row">
                 <div class="col-md-3">
-                    <div class="card ${totalRowsRemoved > 0 ? 'deleted-rows-card' : ''}" ${totalRowsRemoved > 0 ? 'id="deletedTotalCard" style="cursor: pointer;"' : ''}>
-                        <div class="card-body text-center">
-                            <h6 class="card-title">删除合计行</h6>
-                            <p class="card-text h4">${totalRowsRemoved}</p>
-                        </div>
-                    </div>
+                    ${generateCardHtml('删除合计行', totalRowsRemoved, 'deletedTotalCard')}
                 </div>
                 <div class="col-md-3">
-                    <div class="card ${incompleteTimeRowsRemoved > 0 ? 'deleted-rows-card' : ''}" ${incompleteTimeRowsRemoved > 0 ? 'id="deletedIncompleteCard" style="cursor: pointer;"' : ''}>
-                        <div class="card-body text-center">
-                            <h6 class="card-title">删除不完整行</h6>
-                            <p class="card-text h4">${incompleteTimeRowsRemoved}</p>
-                        </div>
-                    </div>
+                    ${generateCardHtml('删除不完整行', incompleteTimeRowsRemoved, 'deletedIncompleteCard')}
                 </div>
                 <div class="col-md-3">
-                    <div class="card">
-                        <div class="card-body text-center">
-                            <h6 class="card-title">车间列分列</h6>
-                            <p class="card-text h4">${workshopColumnSplit}</p>
-                        </div>
-                    </div>
+                    ${generateCardHtml('车间列分列', workshopColumnSplit)}
                 </div>
                 <div class="col-md-3">
-                    <div class="card">
-                        <div class="card-body text-center">
-                            <h6 class="card-title">维修人分类</h6>
-                            <p class="card-text h4">${repairPersonClassified}</p>
-                        </div>
-                    </div>
+                    ${generateCardHtml('维修人分类', repairPersonClassified)}
                 </div>
             </div>
         `;

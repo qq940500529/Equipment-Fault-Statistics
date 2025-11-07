@@ -239,7 +239,7 @@ export function showDeletedRowsModal(title, deletedRows, headers, deletionReason
         // 添加删除原因列
         const reasonTh = document.createElement('th');
         reasonTh.textContent = '删除原因';
-        reasonTh.style.width = '180px';
+        reasonTh.className = 'deletion-reason-column';
         headerRow.appendChild(reasonTh);
         
         tableHeader.appendChild(headerRow);
