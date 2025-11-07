@@ -585,10 +585,6 @@ class App {
         const headers = this.dataParser.getHeaders();
         showDeletedRowsModal('删除的时间不完整行', this.deletedRows.incompleteTimeRows, headers);
     }
-        `;
-        
-        statsContainer.style.display = 'block';
-    }
 
     /**
      * 显示处理后数据预览
