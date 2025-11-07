@@ -235,6 +235,38 @@ Equipment-Fault-Statistics/
 - **GitHub Actions**: 自动部署到GitHub Pages
 - **代码质量检查**: 自动检查Markdown和JSON文件
 - **Dependabot**: 自动更新依赖项
+- **发布流水线**: 手动触发的版本发布流程，自动打包和发布
+
+### 📦 发布流程
+
+本项目使用自动化的CI/CD流水线进行版本发布：
+
+1. **准备发布**
+   - 更新 `package.json` 中的版本号
+   - 更新 `CHANGELOG.md` 记录变更
+   - 提交并推送更改到主分支
+
+2. **触发发布**
+   - 访问 [Actions](https://github.com/qq940500529/Equipment-Fault-Statistics/actions/workflows/release.yml) 页面
+   - 点击 "Run workflow"
+   - 输入版本号（必须与 package.json 一致）
+   - 点击 "Run workflow" 确认
+
+3. **自动验证**
+   - 验证输入版本与 package.json 匹配
+   - 检查该版本是否已发布
+   - 对比已有版本，防止版本冲突
+
+4. **自动打包**
+   - 仅包含核心程序文件（index.html, css/, js/, lib/）
+   - 包含必要文档（README.md, LICENSE, CHANGELOG.md）
+   - 排除测试、开发文档、示例等文件
+   - 生成 ZIP 压缩包和 SHA256 校验和
+
+5. **创建发布**
+   - 在 GitHub Releases 中创建新版本
+   - 自动上传发布包和校验和文件
+   - 生成发布说明
 
 ### 📝 Issue和PR模板
 - **Bug报告模板**: 结构化的问题报告
