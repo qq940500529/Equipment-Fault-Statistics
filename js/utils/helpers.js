@@ -345,6 +345,40 @@ export function extractAllColumns(data, preferredOrder = []) {
     return Array.from(allColumns);
 }
 
+/**
+ * 生成导出文件名的时间戳
+ * @returns {string} 格式化的时间戳字符串 (YYYYMMDD_HHMMSS)
+ */
+export function generateExportTimestamp() {
+    const now = new Date();
+    return now.getFullYear() + 
+           String(now.getMonth() + 1).padStart(2, '0') + 
+           String(now.getDate()).padStart(2, '0') + '_' +
+           String(now.getHours()).padStart(2, '0') + 
+           String(now.getMinutes()).padStart(2, '0') + 
+           String(now.getSeconds()).padStart(2, '0');
+}
+
+/**
+ * 转义CSV值（处理逗号、引号、换行符）
+ * @param {any} value - 要转义的值
+ * @returns {string} 转义后的值
+ */
+export function escapeCsvValue(value) {
+    if (value === null || value === undefined) {
+        return '';
+    }
+    
+    const strValue = String(value);
+    
+    // 如果包含逗号、引号或换行符，需要用引号包裹并转义内部引号
+    if (strValue.includes(',') || strValue.includes('"') || strValue.includes('\n')) {
+        return '"' + strValue.replace(/"/g, '""') + '"';
+    }
+    
+    return strValue;
+}
+
 // 导出所有函数
 export default {
     formatFileSize,
@@ -366,5 +400,7 @@ export default {
     validateFileSize,
     clearTable,
     createTable,
-    extractAllColumns
+    extractAllColumns,
+    generateExportTimestamp,
+    escapeCsvValue
 };

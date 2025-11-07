@@ -6,7 +6,7 @@
  */
 
 import { APP_CONFIG, TABLE_CONFIG } from './config/constants.js';
-import { showInfo, showSuccess, showError, showWarning, formatFileSize, createTable, clearTable, updateProgress, escapeHtml, extractAllColumns } from './utils/helpers.js';
+import { showInfo, showSuccess, showError, showWarning, formatFileSize, createTable, clearTable, updateProgress, escapeHtml, extractAllColumns, generateExportTimestamp, escapeCsvValue } from './utils/helpers.js';
 import { FileUploader } from './modules/fileUploader.js';
 import { DataParser } from './modules/dataParser.js';
 import { DataValidator } from './modules/dataValidator.js';
@@ -571,6 +571,12 @@ class App {
             return;
         }
         
+        // Check if XLSX library is available
+        if (typeof XLSX === 'undefined') {
+            showError('Excel导出库未加载，请刷新页面重试');
+            return;
+        }
+        
         try {
             console.log('导出Excel文件...');
             showInfo('正在生成Excel文件...', 2000);
@@ -601,13 +607,7 @@ class App {
             XLSX.utils.book_append_sheet(wb, ws, '整理后数据');
             
             // 生成文件名（使用当前日期时间）
-            const now = new Date();
-            const dateStr = now.getFullYear() + 
-                           String(now.getMonth() + 1).padStart(2, '0') + 
-                           String(now.getDate()).padStart(2, '0') + '_' +
-                           String(now.getHours()).padStart(2, '0') + 
-                           String(now.getMinutes()).padStart(2, '0') + 
-                           String(now.getSeconds()).padStart(2, '0');
+            const dateStr = generateExportTimestamp();
             const fileName = `设备故障统计_整理后数据_${dateStr}.xlsx`;
             
             // 导出文件
@@ -643,25 +643,19 @@ class App {
             let csvContent = '';
             
             // 添加表头（使用BOM以支持中文）
-            csvContent = '\uFEFF' + allHeaders.map(h => this.escapeCsvValue(h)).join(',') + '\n';
+            csvContent = '\uFEFF' + allHeaders.map(h => escapeCsvValue(h)).join(',') + '\n';
             
             // 添加数据行
             this.processedData.forEach(row => {
                 const values = allHeaders.map(header => {
                     const value = row[header];
-                    return this.escapeCsvValue(value !== undefined ? value : '');
+                    return escapeCsvValue(value !== undefined ? value : '');
                 });
                 csvContent += values.join(',') + '\n';
             });
             
             // 生成文件名（使用当前日期时间）
-            const now = new Date();
-            const dateStr = now.getFullYear() + 
-                           String(now.getMonth() + 1).padStart(2, '0') + 
-                           String(now.getDate()).padStart(2, '0') + '_' +
-                           String(now.getHours()).padStart(2, '0') + 
-                           String(now.getMinutes()).padStart(2, '0') + 
-                           String(now.getSeconds()).padStart(2, '0');
+            const dateStr = generateExportTimestamp();
             const fileName = `设备故障统计_整理后数据_${dateStr}.csv`;
             
             // 创建Blob并下载
@@ -683,26 +677,6 @@ class App {
             console.error('CSV导出错误:', error);
             showError('CSV导出失败: ' + error.message);
         }
-    }
-    
-    /**
-     * 转义CSV值（处理逗号、引号、换行符）
-     * @param {any} value - 要转义的值
-     * @returns {string} 转义后的值
-     */
-    escapeCsvValue(value) {
-        if (value === null || value === undefined) {
-            return '';
-        }
-        
-        const strValue = String(value);
-        
-        // 如果包含逗号、引号或换行符，需要用引号包裹并转义内部引号
-        if (strValue.includes(',') || strValue.includes('"') || strValue.includes('\n')) {
-            return '"' + strValue.replace(/"/g, '""') + '"';
-        }
-        
-        return strValue;
     }
 
     /**
@@ -743,13 +717,7 @@ class App {
             }, null, 2);
             
             // 生成文件名（使用当前日期时间）
-            const now = new Date();
-            const dateStr = now.getFullYear() + 
-                           String(now.getMonth() + 1).padStart(2, '0') + 
-                           String(now.getDate()).padStart(2, '0') + '_' +
-                           String(now.getHours()).padStart(2, '0') + 
-                           String(now.getMinutes()).padStart(2, '0') + 
-                           String(now.getSeconds()).padStart(2, '0');
+            const dateStr = generateExportTimestamp();
             const fileName = `设备故障统计_整理后数据_${dateStr}.json`;
             
             // 创建Blob并下载
