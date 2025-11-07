@@ -214,7 +214,10 @@ export function showDeletedRowsModal(title, deletedRows, headers, deletionReason
     if (deletedRows.length === 0) {
         const noDataRow = document.createElement('tr');
         const noDataCell = document.createElement('td');
-        noDataCell.colSpan = headers.length + 2; // +2 for the index column and deletion reason column
+        // Colspan: data columns + index column + deletion reason column
+        const INDEX_COLUMN_COUNT = 1;
+        const DELETION_REASON_COLUMN_COUNT = 1;
+        noDataCell.colSpan = headers.length + INDEX_COLUMN_COUNT + DELETION_REASON_COLUMN_COUNT;
         noDataCell.className = 'text-center text-muted';
         noDataCell.textContent = '没有删除的行';
         noDataRow.appendChild(noDataCell);

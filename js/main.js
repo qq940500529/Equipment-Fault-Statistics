@@ -505,7 +505,8 @@ class App {
         
         // Helper function to generate card HTML
         const generateCardHtml = (title, count, cardId = null) => {
-            const isClickable = cardId && count > 0;
+            // Only make card clickable if it has a cardId and count is a positive number
+            const isClickable = cardId && typeof count === 'number' && count > 0;
             const cardClass = isClickable ? 'card deleted-rows-card' : 'card';
             const cardAttrs = isClickable ? `id="${cardId}"` : '';
             
