@@ -7,21 +7,21 @@
 
 // 必需的列名
 export const REQUIRED_COLUMNS = {
-    WORK_ORDER: '工单号',
-    WORKSHOP: '车间',
-    REPAIR_PERSON: '维修人',
-    REPORT_TIME: '报修时间',
-    START_TIME: '维修开始时间',
-    END_TIME: '维修结束时间'
+    workOrder: '工单号',
+    workshop: '车间',
+    repairPerson: '维修人',
+    reportTime: '报修时间',
+    startTime: '维修开始时间',
+    endTime: '维修结束时间'
 };
 
 // 可选的列名（如不存在则创建）
 export const OPTIONAL_COLUMNS = {
-    AREA: '区域',
-    REPAIR_PERSON_TYPE: '维修人分类',
-    WAIT_TIME: '等待时间h',
-    REPAIR_TIME: '维修时间h',
-    FAULT_TIME: '故障时间h'
+    area: '区域',
+    repairPersonType: '维修人分类',
+    waitTime: '等待时间h',
+    repairTime: '维修时间h',
+    faultTime: '故障时间h'
 };
 
 // 维修工名单（16人）
@@ -61,6 +61,10 @@ export const NUMBER_FORMAT = {
 // 文件格式配置
 export const FILE_CONFIG = {
     ALLOWED_EXTENSIONS: ['.xlsx', '.xls'],
+    ALLOWED_TYPES: [
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',  // .xlsx
+        'application/vnd.ms-excel'  // .xls
+    ],
     MAX_FILE_SIZE: 50 * 1024 * 1024,  // 50MB
     DEFAULT_SHEET_NAME: '原始数据',
     OUTPUT_SHEET_NAME: '整理后数据'
@@ -109,6 +113,35 @@ export const APP_CONFIG = {
     GITHUB_REPO: 'https://github.com/qq940500529/Equipment-Fault-Statistics'
 };
 
+// 统一消息配置（用于简化消息访问）
+export const MESSAGES = {
+    ERROR: {
+        NO_FILE: '请选择一个文件',
+        INVALID_FILE: '请选择有效的Excel文件（.xlsx或.xls）',
+        INVALID_FILE_TYPE: '请选择有效的Excel文件（.xlsx或.xls）',
+        FILE_TOO_LARGE: '文件大小超过限制（最大{size}MB）',
+        FILE_READ_ERROR: '文件读取失败',
+        INVALID_EXCEL: '无效的Excel文件',
+        EMPTY_FILE: '文件为空',
+        MISSING_COLUMNS: '缺少必需列',
+        PARSE_ERROR: '数据解析错误',
+        PROCESSING_ERROR: '数据处理出错'
+    },
+    SUCCESS: {
+        FILE_LOADED: '文件加载成功',
+        VALIDATION_PASSED: '数据验证通过',
+        PROCESSING_COMPLETE: '数据处理完成',
+        EXPORT_SUCCESS: '文件导出成功'
+    },
+    INFO: {
+        LOADING_FILE: '正在读取文件...',
+        VALIDATING: '正在验证数据...',
+        PROCESSING: '正在处理数据...',
+        GENERATING_OUTPUT: '正在生成输出文件...',
+        EXPORTING: '正在导出文件...'
+    }
+};
+
 // 导出所有常量
 export default {
     REQUIRED_COLUMNS,
@@ -123,5 +156,6 @@ export default {
     ERROR_MESSAGES,
     SUCCESS_MESSAGES,
     STATUS_MESSAGES,
-    APP_CONFIG
+    APP_CONFIG,
+    MESSAGES
 };
