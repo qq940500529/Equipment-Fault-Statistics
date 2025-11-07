@@ -124,6 +124,9 @@ header .text-muted {
     font-weight: 600;
     z-index: 10;
     border: none;
+    /* 适当的列宽 - 自动调整内容，但有最小宽度 */
+    min-width: 100px;
+    white-space: nowrap;
 }
 
 .table-striped tbody tr:nth-of-type(odd) {
@@ -132,6 +135,14 @@ header .text-muted {
 
 .table-sm td, .table-sm th {
     padding: 0.5rem;
+    /* 适当的列宽 - 允许内容换行，但有最小宽度 */
+    min-width: 80px;
+}
+
+.table td {
+    /* 允许长文本换行，避免表格过宽 */
+    word-wrap: break-word;
+    word-break: break-word;
 }
 
 /* 按钮样式增强 */
@@ -288,4 +299,54 @@ footer a:hover {
 
 .table-responsive::-webkit-scrollbar-thumb:hover {
     background: #555;
+}
+
+/* 删除行模态框样式 - 宽度随内容自动调整 */
+#deletedRowsModal .modal-dialog {
+    max-width: 95vw; /* 最大不超过窗口宽度的95% */
+    width: fit-content; /* 宽度自适应内容 */
+    min-width: 600px; /* 最小宽度保持合理 */
+}
+
+#deletedRowsModal .modal-content {
+    max-width: 95vw; /* 确保内容不超过视口 */
+}
+
+#deletedRowsModal .table-responsive {
+    overflow-x: auto; /* 仅在必要时允许水平滚动 */
+    max-height: 70vh;
+    max-width: calc(95vw - 3rem); /* 减去modal的padding */
+}
+
+#deletedRowsModal .table {
+    width: max-content; /* 表格宽度根据内容自动扩展 */
+    max-width: 100%; /* 但不超过容器宽度 */
+    table-layout: auto; /* 自动布局以适应内容 */
+}
+
+#deletedRowsModal .table th,
+#deletedRowsModal .table td {
+    white-space: nowrap; /* 优先不换行，让表格自然扩展 */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 300px; /* 单个单元格最大宽度限制 */
+}
+
+#deletedRowsModal .table td {
+    /* 对于某些列允许换行 */
+    white-space: normal;
+    word-wrap: break-word;
+}
+
+/* 响应式调整 - 小屏幕 */
+@media (max-width: 768px) {
+    #deletedRowsModal .modal-dialog {
+        min-width: 95vw; /* 小屏幕时使用全宽 */
+        max-width: 95vw;
+    }
+    
+    #deletedRowsModal .table th,
+    #deletedRowsModal .table td {
+        max-width: 200px; /* 小屏幕时减小单元格最大宽度 */
+    }
 }
