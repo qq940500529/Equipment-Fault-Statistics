@@ -10,6 +10,12 @@
 2. Source: 选择 "GitHub Actions"
 3. 保存后，网站将部署到: `https://qq940500529.github.io/Equipment-Fault-Statistics/`
 
+**⚠️ 重要安全提示**:
+- 当前部署工作流会部署整个仓库（包括文档）
+- 一旦创建实际网站文件（index.html等），必须更新 `.github/workflows/deploy.yml`
+- 将 `path: '.'` 改为 `path: './dist'` 或 `path: './public'`
+- 这样可以避免暴露敏感文件如 `.github/workflows/` 等
+
 ### 2. 标签配置 (Labels)
 
 虽然我们提供了 `.github/labels.yml` 配置文件，但GitHub不会自动应用这些标签。需要手动创建或使用第三方工具：

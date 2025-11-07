@@ -1,5 +1,9 @@
 name: Deploy to GitHub Pages
 
+# NOTE: This workflow currently deploys the entire repository root.
+# Once the actual website files are created (index.html, etc.), 
+# update the 'path' parameter below to only deploy the necessary files.
+
 on:
   push:
     branches:
@@ -31,8 +35,10 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # TODO: Change to specific directory (e.g., './dist' or './public') 
-          # when the actual site is built to avoid exposing sensitive files
+          # NOTE: Currently deploys entire repository for documentation access.
+          # TODO: Change to './dist' or './public' when actual site is built
+          # to avoid exposing sensitive files (.github/, .git/, etc.)
+          # Add exclusions in .gitignore or use a dedicated build directory.
           path: '.'
 
       - name: Deploy to GitHub Pages
