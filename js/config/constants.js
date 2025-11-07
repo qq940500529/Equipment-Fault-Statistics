@@ -113,6 +113,12 @@ export const APP_CONFIG = {
     GITHUB_REPO: 'https://github.com/qq940500529/Equipment-Fault-Statistics'
 };
 
+// UI 动画配置
+export const UI_CONFIG = {
+    LOADING_TRANSITION_MS: 300,  // 加载覆盖层过渡时间（毫秒）
+    COMPLETION_DELAY_MS: 300     // 完成状态显示延迟（毫秒）
+};
+
 // 统一消息配置（用于简化消息访问）
 export const MESSAGES = {
     ERROR: {
@@ -157,5 +163,6 @@ export default {
     SUCCESS_MESSAGES,
     STATUS_MESSAGES,
     APP_CONFIG,
+    UI_CONFIG,
     MESSAGES
 };

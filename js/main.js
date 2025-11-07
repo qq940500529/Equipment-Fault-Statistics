@@ -5,7 +5,7 @@
  * Equipment Fault Statistics System v0.3.0
  */
 
-import { APP_CONFIG, TABLE_CONFIG } from './config/constants.js';
+import { APP_CONFIG, TABLE_CONFIG, UI_CONFIG } from './config/constants.js';
 import { showInfo, showSuccess, showError, showWarning, formatFileSize, createTable, clearTable, updateProgress, escapeHtml, extractAllColumns, generateExportTimestamp, escapeCsvValue, showLoadingOverlay, hideLoadingOverlay } from './utils/helpers.js';
 import { FileUploader } from './modules/fileUploader.js';
 import { DataParser } from './modules/dataParser.js';
@@ -191,7 +191,7 @@ class App {
             updateProgress(100, '完成！', '数据加载成功');
             
             // 短暂延迟以显示完成状态
-            await new Promise(resolve => setTimeout(resolve, 300));
+            await new Promise(resolve => setTimeout(resolve, UI_CONFIG.COMPLETION_DELAY_MS));
             
             // 隐藏步骤3，显示第二步
             const step3 = document.getElementById('step-3');
@@ -422,7 +422,7 @@ class App {
             updateProgress(100, '完成！', '数据处理成功');
             
             // 短暂延迟以显示完成状态
-            await new Promise(resolve => setTimeout(resolve, 300));
+            await new Promise(resolve => setTimeout(resolve, UI_CONFIG.COMPLETION_DELAY_MS));
             
             showSuccess(`数据处理成功！处理后共 ${this.processedData.length} 行数据`, 3000);
             

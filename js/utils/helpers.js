@@ -5,6 +5,8 @@
  * 提供通用的辅助函数
  */
 
+import { UI_CONFIG } from '../config/constants.js';
+
 /**
  * 格式化文件大小
  * @param {number} bytes - 字节数
@@ -174,7 +176,7 @@ export function hideLoadingOverlay() {
         overlay.classList.add('hidden');
         setTimeout(() => {
             overlay.style.display = 'none';
-        }, 300);
+        }, UI_CONFIG.LOADING_TRANSITION_MS);
     }
 }
 
