@@ -29,6 +29,12 @@ export class DataTransformer {
      * @param {Array} data - 原始数据数组
      * @param {Object} columnMapping - 列映射对象
      * @returns {Object} 转换后的数据和统计信息
+     * 
+     * 注意: 转换过程会自动创建可选列（区域、维修人分类、时间计算等），
+     * 即使这些列在原始数据中不存在。这是预期行为，用于数据增强。
+     * Note: The transformation automatically creates optional columns (area, 
+     * repair person type, time calculations, etc.) even if they don't exist 
+     * in the source data. This is intentional for data enrichment.
      */
     transform(data, columnMapping) {
         this.reset();
@@ -71,9 +77,11 @@ export class DataTransformer {
     /**
      * 功能2: 车间列分列
      * 将"车间-区域"格式分割为两列
+     * 注意：会自动创建"区域"列，即使原始数据中不存在
      */
     splitWorkshopColumn() {
         const workshopKey = this.columnMapping.workshop;
+        // 使用映射的列名，如果不存在则使用默认列名来创建新列
         const areaKey = this.columnMapping.area || OPTIONAL_COLUMNS.area;
 
         if (!workshopKey) {
@@ -101,9 +109,11 @@ export class DataTransformer {
     /**
      * 功能3: 维修人分类
      * 根据姓名将维修人分类为"维修工"、"电工"或"未知"
+     * 注意：会自动创建"维修人分类"列，即使原始数据中不存在
      */
     classifyRepairPersons() {
         const repairPersonKey = this.columnMapping.repairPerson;
+        // 使用映射的列名，如果不存在则使用默认列名来创建新列
         const repairPersonTypeKey = this.columnMapping.repairPersonType || OPTIONAL_COLUMNS.repairPersonType;
 
         if (!repairPersonKey) {
@@ -141,11 +151,13 @@ export class DataTransformer {
     /**
      * 功能4: 计算时间
      * 计算等待时间、维修时间和故障时间（单位：小时）
+     * 注意：会自动创建时间计算列（等待时间h、维修时间h、故障时间h），即使原始数据中不存在
      */
     calculateTimes() {
         const reportTimeKey = this.columnMapping.reportTime;
         const startTimeKey = this.columnMapping.startTime;
         const endTimeKey = this.columnMapping.endTime;
+        // 使用映射的列名，如果不存在则使用默认列名来创建新列
         const waitTimeKey = this.columnMapping.waitTime || OPTIONAL_COLUMNS.waitTime;
         const repairTimeKey = this.columnMapping.repairTime || OPTIONAL_COLUMNS.repairTime;
         const faultTimeKey = this.columnMapping.faultTime || OPTIONAL_COLUMNS.faultTime;
