@@ -1,0 +1,99 @@
+# GitHub Labels Configuration
+# This file defines the labels used in the repository
+
+# Type labels
+- name: bug
+  color: d73a4a
+  description: 报告的问题或错误
+
+- name: enhancement
+  color: a2eeef
+  description: 新功能或功能改进
+
+- name: documentation
+  color: 0075ca
+  description: 文档改进或更新
+
+- name: question
+  color: d876e3
+  description: 需要更多信息或讨论
+
+- name: duplicate
+  color: cfd3d7
+  description: 重复的issue或PR
+
+- name: invalid
+  color: e4e669
+  description: 无效的issue或PR
+
+- name: wontfix
+  color: ffffff
+  description: 不会处理的issue
+
+# Priority labels
+- name: priority:high
+  color: b60205
+  description: 高优先级
+
+- name: priority:medium
+  color: fbca04
+  description: 中优先级
+
+- name: priority:low
+  color: 0e8a16
+  description: 低优先级
+
+# Status labels
+- name: status:in-progress
+  color: 1d76db
+  description: 正在处理中
+
+- name: status:blocked
+  color: 6f42c1
+  description: 被阻塞
+
+- name: status:needs-review
+  color: 0e8a16
+  description: 需要审查
+
+- name: status:ready
+  color: 0e8a16
+  description: 准备就绪
+
+# Component labels
+- name: component:excel
+  color: d4c5f9
+  description: Excel文件处理相关
+
+- name: component:ui
+  color: d4c5f9
+  description: 用户界面相关
+
+- name: component:chart
+  color: d4c5f9
+  description: 图表功能相关
+
+- name: component:data
+  color: d4c5f9
+  description: 数据处理相关
+
+- name: component:export
+  color: d4c5f9
+  description: 数据导出相关
+
+# Special labels
+- name: good first issue
+  color: 7057ff
+  description: 适合新贡献者的问题
+
+- name: help wanted
+  color: 008672
+  description: 需要社区帮助
+
+- name: breaking change
+  color: d93f0b
+  description: 破坏性变更
+
+- name: security
+  color: ee0701
+  description: 安全相关问题

@@ -171,24 +171,63 @@ Equipment-Fault-Statistics/
 
 详细计划请参阅 [实施计划文档](docs/IMPLEMENTATION.md)
 
+## GitHub功能
+
+本项目配置了完善的GitHub功能，提供更好的协作体验：
+
+### 🔄 自动化工作流
+- **GitHub Actions**: 自动部署到GitHub Pages
+- **代码质量检查**: 自动检查Markdown和JSON文件
+- **Dependabot**: 自动更新依赖项
+
+### 📝 Issue和PR模板
+- **Bug报告模板**: 结构化的问题报告
+- **功能请求模板**: 清晰的需求描述
+- **文档改进模板**: 文档问题追踪
+- **PR模板**: 标准化的代码审查流程
+
+### 📚 项目文档
+- **贡献指南**: [CONTRIBUTING.md](CONTRIBUTING.md)
+- **行为准则**: [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
+- **安全政策**: [SECURITY.md](SECURITY.md)
+- **变更日志**: [CHANGELOG.md](CHANGELOG.md)
+- **许可证**: [LICENSE](LICENSE)
+
+### 🏷️ 标签系统
+- 类型标签: bug, enhancement, documentation
+- 优先级标签: priority:high, priority:medium, priority:low
+- 状态标签: status:in-progress, status:needs-review
+- 组件标签: component:excel, component:ui, component:chart
+
 ## 贡献指南
 
-欢迎贡献！在开始之前，请：
+欢迎贡献！我们已经配置了完善的GitHub工作流程：
 
-1. 阅读架构文档了解系统设计
-2. 阅读技术规格了解实现细节
-3. 遵循代码规范和注释规范
-4. 编写单元测试
-5. 更新相关文档
+- 📋 **提交问题**: 使用[Issue模板](https://github.com/qq940500529/Equipment-Fault-Statistics/issues/new/choose)报告bug或建议功能
+- 🔀 **提交代码**: 查看[贡献指南](CONTRIBUTING.md)了解详细流程
+- 📖 **改进文档**: 文档改进同样重要
+- 🛡️ **安全问题**: 查看[安全政策](SECURITY.md)了解如何报告安全漏洞
+- 📜 **行为准则**: 请遵守我们的[行为准则](CODE_OF_CONDUCT.md)
+
+在开始之前，请：
+
+1. 阅读[贡献指南](CONTRIBUTING.md)了解完整流程
+2. 阅读架构文档了解系统设计
+3. 阅读技术规格了解实现细节
+4. 遵循代码规范和注释规范
+5. 编写单元测试
+6. 更新相关文档
 
 ## 许可证
 
-本项目采用 MIT 许可证
+本项目采用 MIT 许可证。详见 [LICENSE](LICENSE) 文件。
 
 ## 联系方式
 
 - 项目仓库: https://github.com/qq940500529/Equipment-Fault-Statistics
 - 问题反馈: [Issues](https://github.com/qq940500529/Equipment-Fault-Statistics/issues)
+- 功能讨论: [Discussions](https://github.com/qq940500529/Equipment-Fault-Statistics/discussions)
+- 安全问题: 查看[安全政策](SECURITY.md)
 
 ## 致谢
 

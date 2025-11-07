@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 问题讨论 (Discussions)
+    url: https://github.com/qq940500529/Equipment-Fault-Statistics/discussions
+    about: 如有一般问题或讨论，请使用 GitHub Discussions
+  - name: 项目文档 (Documentation)
+    url: https://github.com/qq940500529/Equipment-Fault-Statistics/tree/main/docs
+    about: 查看项目的详细文档
