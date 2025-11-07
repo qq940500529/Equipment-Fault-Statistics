@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Full Flow Test</title>
+    <style>
+        body { font-family: monospace; padding: 20px; }
+        .success { color: green; }
+        .error { color: red; }
+        .warning { color: orange; }
+    </style>
+</head>
+<body>
+    <h1>Full Data Processing Test</h1>
+    <div id="output"></div>
+    
+    <script src="lib/xlsx.full.min.js"></script>
+    <script type="module">
+        import { DataParser } from './js/modules/dataParser.js';
+        import { DataValidator } from './js/modules/dataValidator.js';
+        import { DataTransformer } from './js/modules/dataTransformer.js';
+        
+        const output = document.getElementById('output');
+        
+        function log(msg, type = 'info') {
+            const p = document.createElement('p');
+            p.className = type;
+            p.textContent = msg;
+            output.appendChild(p);
+        }
+        
+        async function test() {
+            try {
+                log('=== Starting Full Flow Test ===');
+                log('Loading Excel file...');
+                
+                const response = await fetch('./examples/10月份维修数据.xlsx');
+                const arrayBuffer = await response.arrayBuffer();
+                
+                log('✓ File loaded successfully', 'success');
+                
+                // Step 1: Parse
+                log('\n--- Step 1: Parsing ---');
+                const parser = new DataParser();
+                const parseResult = parser.parseExcel(arrayBuffer);
+                
+                if (!parseResult.success) {
+                    log('✗ Parse failed: ' + parseResult.error, 'error');
+                    return;
+                }
+                
+                log('✓ Parse successful', 'success');
+                log('  Rows: ' + parseResult.rowCount);
+                log('  Headers: ' + parseResult.headers.slice(0, 6).join(', '));
+                
+                // Step 2: Validate
+                log('\n--- Step 2: Validating ---');
+                const validator = new DataValidator();
+                const validationResult = validator.validate(parseResult.data, parseResult.columnMapping);
+                
+                if (!validationResult.valid) {
+                    log('✗ Validation failed!', 'error');
+                    validationResult.errors.forEach(err => log('  ERROR: ' + err, 'error'));
+                    validationResult.warnings.forEach(warn => log('  WARNING: ' + warn, 'warning'));
+                    return;
+                }
+                
+                log('✓ Validation passed!', 'success');
+                if (validationResult.warnings.length > 0) {
+                    validationResult.warnings.forEach(warn => log('  WARNING: ' + warn, 'warning'));
+                }
+                
+                // Step 3: Transform
+                log('\n--- Step 3: Transforming ---');
+                const transformer = new DataTransformer();
+                const transformResult = transformer.transform(parseResult.data, parseResult.columnMapping);
+                
+                log('✓ Transform complete!', 'success');
+                log('  Input rows: ' + parseResult.rowCount);
+                log('  Output rows: ' + transformResult.data.length);
+                log('  Removed "合计" rows: ' + transformResult.stats.totalRowsRemoved);
+                log('  Removed incomplete rows: ' + transformResult.stats.incompleteTimeRowsRemoved);
+                log('  Workshop split: ' + transformResult.stats.workshopColumnSplit);
+                log('  Person classified: ' + transformResult.stats.repairPersonClassified);
+                
+                // Check sample output
+                if (transformResult.data.length > 0) {
+                    log('\n--- Sample Output (first row) ---');
+                    const firstRow = transformResult.data[0];
+                    log('  工单号: ' + firstRow['工单号']);
+                    log('  车间: ' + firstRow['车间']);
+                    log('  区域: ' + firstRow['区域']);
+                    log('  维修人: ' + firstRow['维修人']);
+                    log('  维修人分类: ' + firstRow['维修人分类']);
+                    log('  等待时间h: ' + firstRow['等待时间h']);
+                    log('  维修时间h: ' + firstRow['维修时间h']);
+                    log('  故障时间h: ' + firstRow['故障时间h']);
+                }
+                
+                log('\n=== ✓ All Tests Passed! ===', 'success');
+                
+            } catch (error) {
+                log('✗ Error: ' + error.message, 'error');
+                log(error.stack, 'error');
+            }
+        }
+        
+        test();
+    </script>
+</body>
+</html>

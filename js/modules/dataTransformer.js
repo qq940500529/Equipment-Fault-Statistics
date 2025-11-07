@@ -74,7 +74,7 @@ export class DataTransformer {
      */
     splitWorkshopColumn() {
         const workshopKey = this.columnMapping.workshop;
-        const areaKey = this.columnMapping.area;
+        const areaKey = this.columnMapping.area || OPTIONAL_COLUMNS.area;
 
         if (!workshopKey) {
             return;
@@ -87,11 +87,9 @@ export class DataTransformer {
                 const parts = workshopValue.split('-');
                 row[workshopKey] = parts[0].trim();
                 
-                // 只在有区域列映射时才设置区域值
-                if (areaKey) {
-                    row[areaKey] = parts.length > 1 ? parts[1].trim() : '';
-                }
-            } else if (areaKey && !row[areaKey]) {
+                // 创建区域列并设置值
+                row[areaKey] = parts.length > 1 ? parts[1].trim() : '';
+            } else {
                 // 如果没有"-"，确保区域列为空
                 row[areaKey] = '';
             }
@@ -106,7 +104,7 @@ export class DataTransformer {
      */
     classifyRepairPersons() {
         const repairPersonKey = this.columnMapping.repairPerson;
-        const repairPersonTypeKey = this.columnMapping.repairPersonType;
+        const repairPersonTypeKey = this.columnMapping.repairPersonType || OPTIONAL_COLUMNS.repairPersonType;
 
         if (!repairPersonKey) {
             return;
@@ -133,10 +131,8 @@ export class DataTransformer {
                 }
             }
 
-            // 只在有维修人分类列映射时才设置值
-            if (repairPersonTypeKey) {
-                row[repairPersonTypeKey] = personType;
-            }
+            // 创建维修人分类列并设置值
+            row[repairPersonTypeKey] = personType;
         });
 
         this.stats.repairPersonClassified = true;
@@ -150,9 +146,9 @@ export class DataTransformer {
         const reportTimeKey = this.columnMapping.reportTime;
         const startTimeKey = this.columnMapping.startTime;
         const endTimeKey = this.columnMapping.endTime;
-        const waitTimeKey = this.columnMapping.waitTime;
-        const repairTimeKey = this.columnMapping.repairTime;
-        const faultTimeKey = this.columnMapping.faultTime;
+        const waitTimeKey = this.columnMapping.waitTime || OPTIONAL_COLUMNS.waitTime;
+        const repairTimeKey = this.columnMapping.repairTime || OPTIONAL_COLUMNS.repairTime;
+        const faultTimeKey = this.columnMapping.faultTime || OPTIONAL_COLUMNS.faultTime;
 
         if (!reportTimeKey || !startTimeKey || !endTimeKey) {
             return;
@@ -174,16 +170,10 @@ export class DataTransformer {
                 // 计算故障时间（等待时间 + 维修时间）
                 const faultTime = waitTime + repairTime;
 
-                // 设置计算结果（保留2位小数）
-                if (waitTimeKey) {
-                    row[waitTimeKey] = parseFloat(waitTime.toFixed(2));
-                }
-                if (repairTimeKey) {
-                    row[repairTimeKey] = parseFloat(repairTime.toFixed(2));
-                }
-                if (faultTimeKey) {
-                    row[faultTimeKey] = parseFloat(faultTime.toFixed(2));
-                }
+                // 创建列并设置计算结果（保留2位小数）
+                row[waitTimeKey] = parseFloat(waitTime.toFixed(2));
+                row[repairTimeKey] = parseFloat(repairTime.toFixed(2));
+                row[faultTimeKey] = parseFloat(faultTime.toFixed(2));
             }
         });
     }

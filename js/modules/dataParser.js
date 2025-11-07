@@ -104,7 +104,7 @@ export class DataParser {
 
     /**
      * 创建列映射
-     * 记录每个必需列和可选列在数组中的索引
+     * 记录每个必需列和可选列的列名
      */
     createColumnMapping() {
         this.columnMapping = {};
@@ -112,13 +112,15 @@ export class DataParser {
         // 映射必需列
         for (const [key, columnName] of Object.entries(REQUIRED_COLUMNS)) {
             const index = this.headers.indexOf(columnName);
-            this.columnMapping[key] = index;
+            // Store the actual column name if found, null if not found
+            this.columnMapping[key] = index !== -1 ? columnName : null;
         }
 
         // 映射可选列
         for (const [key, columnName] of Object.entries(OPTIONAL_COLUMNS)) {
             const index = this.headers.indexOf(columnName);
-            this.columnMapping[key] = index;
+            // Store the actual column name if found, null if not found
+            this.columnMapping[key] = index !== -1 ? columnName : null;
         }
     }
 
@@ -130,7 +132,7 @@ export class DataParser {
         const missingColumns = [];
 
         for (const [key, columnName] of Object.entries(REQUIRED_COLUMNS)) {
-            if (this.columnMapping[key] === -1) {
+            if (this.columnMapping[key] === null) {
                 missingColumns.push(columnName);
             }
         }
@@ -145,7 +147,7 @@ export class DataParser {
         // 检查可选列，如果不存在则给出警告
         const missingOptionalColumns = [];
         for (const [key, columnName] of Object.entries(OPTIONAL_COLUMNS)) {
-            if (this.columnMapping[key] === -1) {
+            if (this.columnMapping[key] === null) {
                 missingOptionalColumns.push(columnName);
             }
         }
@@ -177,9 +179,9 @@ export class DataParser {
 
         // 过滤空行（工单号为空的行）
         this.rawData = this.rawData.filter(row => {
-            const workOrderIndex = this.columnMapping.workOrder;
-            if (workOrderIndex === -1) return false;
-            const workOrder = row[this.headers[workOrderIndex]];
+            const workOrderColumn = this.columnMapping.workOrder;
+            if (!workOrderColumn) return false;
+            const workOrder = row[workOrderColumn];
             return workOrder && String(workOrder).trim() !== '';
         });
     }
