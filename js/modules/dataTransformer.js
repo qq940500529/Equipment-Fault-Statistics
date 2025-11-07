@@ -97,8 +97,8 @@ export class DataTransformer {
                 
                 // 创建区域列并设置值
                 row[areaKey] = parts.length > 1 ? parts[1].trim() : '';
-            } else {
-                // 如果没有"-"，确保区域列为空
+            } else if (!row[areaKey]) {
+                // 如果没有"-"且区域列不存在或为空，则设置为空字符串
                 row[areaKey] = '';
             }
         });
