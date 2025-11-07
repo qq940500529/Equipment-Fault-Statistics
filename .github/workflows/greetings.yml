@@ -1,0 +1,45 @@
+name: Greetings
+
+on:
+  pull_request:
+    types: [opened]
+  issues:
+    types: [opened]
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  greeting:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/first-interaction@v1.3.0
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          issue-message: |
+            👋 感谢您提交第一个Issue！
+            
+            我们非常重视您的反馈。维护者会尽快查看并回复。
+            
+            在等待期间，您可以：
+            - 📖 查看我们的[文档](https://github.com/qq940500529/Equipment-Fault-Statistics/tree/main/docs)
+            - 💬 加入[讨论](https://github.com/qq940500529/Equipment-Fault-Statistics/discussions)
+            - ⭐ 给项目加星支持我们
+            
+            再次感谢您的贡献！🎉
+            
+          pr-message: |
+            🎉 感谢您提交第一个Pull Request！
+            
+            我们很高兴看到您的贡献。维护者会审查您的代码并提供反馈。
+            
+            在等待审查期间，请确保：
+            - ✅ 所有测试通过
+            - ✅ 遵循了代码风格指南
+            - ✅ 更新了相关文档
+            - ✅ PR描述清晰完整
+            
+            如有疑问，请查看[贡献指南](https://github.com/qq940500529/Equipment-Fault-Statistics/blob/main/CONTRIBUTING.md)。
+            
+            再次感谢您的贡献！🚀

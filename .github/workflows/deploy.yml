@@ -1,0 +1,46 @@
+name: Deploy to GitHub Pages
+
+# NOTE: This workflow currently deploys the entire repository root.
+# Once the actual website files are created (index.html, etc.), 
+# update the 'path' parameter below to only deploy the necessary files.
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # NOTE: Currently deploys entire repository for documentation access.
+          # TODO: Change to './dist' or './public' when actual site is built
+          # to avoid exposing sensitive files (.github/, .git/, etc.)
+          # Add exclusions in .gitignore or use a dedicated build directory.
+          path: '.'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

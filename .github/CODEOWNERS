@@ -1,0 +1,23 @@
+# CODEOWNERS file
+# This file defines code ownership and automatic review requests
+
+# Default owner for everything in the repo
+* @qq940500529
+
+# Documentation
+/docs/ @qq940500529
+*.md @qq940500529
+
+# GitHub configuration
+/.github/ @qq940500529
+
+# Core JavaScript files (when created)
+/js/ @qq940500529
+
+# CSS files (when created)
+/css/ @qq940500529
+
+# Configuration files
+*.json @qq940500529
+*.yml @qq940500529
+*.yaml @qq940500529
