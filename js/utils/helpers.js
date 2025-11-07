@@ -211,7 +211,13 @@ export function showDeletedRowsModal(title, deletedRows, headers) {
     tableBody.innerHTML = '';
     
     if (deletedRows.length === 0) {
-        tableBody.innerHTML = '<tr><td colspan="100" class="text-center text-muted">没有删除的行</td></tr>';
+        const noDataRow = document.createElement('tr');
+        const noDataCell = document.createElement('td');
+        noDataCell.colSpan = headers.length + 1; // +1 for the index column
+        noDataCell.className = 'text-center text-muted';
+        noDataCell.textContent = '没有删除的行';
+        noDataRow.appendChild(noDataCell);
+        tableBody.appendChild(noDataRow);
     } else {
         // 创建表头
         const headerRow = document.createElement('tr');

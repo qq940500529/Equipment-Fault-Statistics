@@ -76,7 +76,8 @@ export class DataTransformer {
             const workshopValue = row[workshopKey];
             const shouldKeep = workshopValue !== SPECIAL_VALUES.TOTAL && workshopValue !== '合计';
             if (!shouldKeep) {
-                deletedRows.push(JSON.parse(JSON.stringify(row))); // Store deleted row
+                // Use structuredClone for better performance (modern browsers)
+                deletedRows.push(typeof structuredClone !== 'undefined' ? structuredClone(row) : JSON.parse(JSON.stringify(row)));
             }
             return shouldKeep;
         });
@@ -228,7 +229,8 @@ export class DataTransformer {
                    isValidDate(endTime);
             
             if (!shouldKeep) {
-                deletedRows.push(JSON.parse(JSON.stringify(row))); // Store deleted row
+                // Use structuredClone for better performance (modern browsers)
+                deletedRows.push(typeof structuredClone !== 'undefined' ? structuredClone(row) : JSON.parse(JSON.stringify(row)));
             }
             return shouldKeep;
         });
