@@ -110,8 +110,19 @@ export class ParetoChartGenerator {
      * 处理图表点击事件
      */
     handleChartClick(params) {
+        // 只处理柱状图的点击，忽略折线图
+        if (params.componentType !== 'series' || params.seriesType !== 'bar') {
+            return;
+        }
+        
         // 如果已经到最后一级，不再钻取
         if (this.currentLevel >= this.levels.length - 1) {
+            return;
+        }
+        
+        // 确保有有效的点击数据
+        if (!params.name || params.name.trim() === '') {
+            console.warn('无效的点击数据:', params);
             return;
         }
         
@@ -124,6 +135,10 @@ export class ParetoChartGenerator {
         // 添加新的筛选条件
         const currentField = this.levels[this.currentLevel].field;
         this.currentFilters[currentField] = params.name;
+        
+        console.log(`钻取: 从层级${this.currentLevel}到${this.currentLevel + 1}`);
+        console.log(`添加筛选: ${currentField} = ${params.name}`);
+        console.log('当前所有筛选:', this.currentFilters);
         
         // 进入下一级
         this.currentLevel++;
@@ -206,15 +221,28 @@ export class ParetoChartGenerator {
             return;
         }
         
+        console.log(`=== 渲染图表 ===`);
+        console.log(`层级: ${this.currentLevel} (${this.levels[this.currentLevel].name})`);
+        console.log(`筛选条件:`, this.currentFilters);
+        
         // 应用筛选条件
-        let filteredData = this.data;
+        let filteredData = [...this.data]; // Create a copy to avoid mutation
         Object.entries(this.currentFilters).forEach(([field, value]) => {
-            filteredData = filteredData.filter(row => row[field] === value);
+            const beforeCount = filteredData.length;
+            filteredData = filteredData.filter(row => {
+                const rowValue = row[field];
+                // Handle different value types and ensure exact match
+                return rowValue !== null && rowValue !== undefined && String(rowValue).trim() === String(value).trim();
+            });
+            console.log(`筛选 ${field}='${value}': ${beforeCount} -> ${filteredData.length} 行`);
         });
         
         // 获取当前层级和指标信息
         const currentLevelInfo = this.levels[this.currentLevel];
         const currentMetricInfo = this.metrics[this.currentMetric];
+        
+        console.log(`分组字段: ${currentLevelInfo.field}`);
+        console.log(`值字段: ${currentMetricInfo.field}`);
         
         // 聚合数据
         const aggregatedData = this.aggregateData(
@@ -222,6 +250,13 @@ export class ParetoChartGenerator {
             currentLevelInfo.field,
             currentMetricInfo.field
         );
+        
+        console.log(`聚合后组数: ${aggregatedData.length}`);
+        if (aggregatedData.length <= 5) {
+            console.log('聚合数据:', aggregatedData);
+        } else {
+            console.log('聚合数据(前5):', aggregatedData.slice(0, 5));
+        }
         
         // 计算帕累托数据
         const paretoResult = this.calculateParetoData(aggregatedData);
@@ -231,6 +266,9 @@ export class ParetoChartGenerator {
         if (this.showTop20Only) {
             displayData = paretoResult.data.slice(0, paretoResult.top20Index + 1);
         }
+        
+        console.log(`显示数据组数: ${displayData.length}`);
+        console.log(`=================\n`);
         
         // 准备图表配置
         const option = this.buildChartOption(displayData, paretoResult, currentLevelInfo, currentMetricInfo);
