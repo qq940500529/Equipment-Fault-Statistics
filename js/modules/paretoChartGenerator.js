@@ -25,9 +25,9 @@ export class ParetoChartGenerator {
         // 层级定义
         this.levels = [
             { name: '车间', field: '车间', title: '按车间分类' },
-            { name: '设备', field: '设备名称', title: '按设备分类' },
+            { name: '设备', field: '设备', title: '按设备分类' },
             { name: '设备编号', field: '设备编号', title: '按设备编号分类' },
-            { name: '失效类型', field: '故障类型', title: '按失效类型分类' }
+            { name: '失效类型', field: '失效类型', title: '按失效类型分类' }
         ];
         
         // 指标定义
