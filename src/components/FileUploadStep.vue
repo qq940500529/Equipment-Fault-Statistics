@@ -1,7 +1,13 @@
 <template>
-  <a-card class="step-card" title="上传Excel文件" :bordered="false">
+  <a-card class="step-card" :bordered="false">
+    <template #title>
+      <div class="card-title">
+        <icon-cloud-upload :size="24" style="margin-right: 8px;" />
+        <span>上传Excel文件</span>
+      </div>
+    </template>
     <template #extra>
-      <a-tag color="blue">步骤 1</a-tag>
+      <a-tag color="arcoblue">步骤 1/5</a-tag>
     </template>
 
     <a-upload
@@ -17,7 +23,7 @@
           </div>
           <div class="upload-text">
             <p class="upload-title">拖拽文件到这里或点击选择文件</p>
-            <p class="upload-hint">支持 .xlsx 和 .xls 格式</p>
+            <p class="upload-hint">支持 .xlsx 和 .xls 格式，最大 50MB</p>
           </div>
         </div>
       </template>
@@ -30,7 +36,7 @@
       class="file-info"
     >
       <template #icon>
-        <icon-file />
+        <icon-check-circle />
       </template>
       已选择: <strong>{{ currentFile.name }}</strong> ({{ formatFileSize(currentFile.size) }})
     </a-alert>
@@ -39,7 +45,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import { Message } from '@arco-design/web-vue'
+import { Message, IconCloudUpload, IconCheckCircle } from '@arco-design/web-vue'
 import { useDataStore } from '@/stores/dataStore'
 import { useFileUploader } from '@/composables/useFileUploader'
 import { useDataParser } from '@/composables/useDataParser'
@@ -111,28 +117,47 @@ function formatFileSize(bytes) {
 <style scoped>
 .step-card {
   animation: fadeIn 0.3s ease-in-out;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  border-radius: 12px;
+}
+
+.card-title {
+  display: flex;
+  align-items: center;
+  font-size: 1.2rem;
+  font-weight: 600;
 }
 
 .upload-area {
-  padding: 3rem 2rem;
+  padding: 4rem 2rem;
   text-align: center;
-  background: var(--color-fill-1);
-  border-radius: 4px;
-  transition: all 0.3s;
+  background: linear-gradient(135deg, rgba(var(--arcoblue-1), 0.3) 0%, rgba(var(--purple-1), 0.2) 100%);
+  border-radius: 8px;
+  border: 2px dashed rgb(var(--arcoblue-5));
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .upload-area:hover {
-  background: var(--color-fill-2);
+  border-color: rgb(var(--arcoblue-6));
+  background: linear-gradient(135deg, rgba(var(--arcoblue-2), 0.4) 0%, rgba(var(--purple-2), 0.3) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(var(--arcoblue-6), 0.15);
 }
 
 .upload-icon {
-  color: rgb(var(--primary-6));
-  margin-bottom: 1rem;
+  color: rgb(var(--arcoblue-6));
+  margin-bottom: 1.5rem;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
 }
 
 .upload-title {
-  font-size: 1.1rem;
-  font-weight: 500;
+  font-size: 1.2rem;
+  font-weight: 600;
   margin: 0 0 0.5rem 0;
   color: var(--color-text-1);
 }
@@ -140,9 +165,11 @@ function formatFileSize(bytes) {
 .upload-hint {
   margin: 0;
   color: var(--color-text-3);
+  font-size: 0.95rem;
 }
 
 .file-info {
   margin-top: 1.5rem;
+  border-radius: 8px;
 }
 </style>

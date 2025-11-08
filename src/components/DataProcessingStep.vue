@@ -1,16 +1,23 @@
 <template>
-  <a-card class="step-card" title="数据处理中..." :bordered="false">
+  <a-card class="step-card" :bordered="false">
+    <template #title>
+      <div class="card-title">
+        <icon-sync :size="24" style="margin-right: 8px;" />
+        <span>数据处理中...</span>
+      </div>
+    </template>
     <template #extra>
-      <a-tag color="blue">步骤 3</a-tag>
+      <a-tag color="arcoblue">步骤 3/5</a-tag>
     </template>
 
     <div class="processing-container">
-      <a-spin :size="64" :loading="processing" />
+      <a-spin :size="64" :loading="processing" tip="正在处理数据..." />
       
       <a-progress
         :percent="progress"
         :status="progress === 100 ? 'success' : 'normal'"
         class="progress-bar"
+        :stroke-width="12"
       />
 
       <div class="status-text">
@@ -23,7 +30,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { Message } from '@arco-design/web-vue'
+import { Message, IconSync } from '@arco-design/web-vue'
 import { useDataStore } from '@/stores/dataStore'
 import { useDataParser } from '@/composables/useDataParser'
 import { useDataValidator } from '@/composables/useDataValidator'
@@ -107,33 +114,47 @@ function delay(ms) {
 <style scoped>
 .step-card {
   animation: fadeIn 0.3s ease-in-out;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  border-radius: 12px;
+}
+
+.card-title {
+  display: flex;
+  align-items: center;
+  font-size: 1.2rem;
+  font-weight: 600;
 }
 
 .processing-container {
-  padding: 3rem 2rem;
+  padding: 4rem 2rem;
   text-align: center;
+  background: linear-gradient(135deg, rgba(var(--arcoblue-1), 0.2) 0%, rgba(var(--purple-1), 0.1) 100%);
+  border-radius: 12px;
 }
 
 .progress-bar {
-  margin: 2rem 0;
+  margin: 3rem auto 2rem;
   max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
+}
+
+.progress-bar :deep(.arco-progress-line-bar) {
+  background: linear-gradient(90deg, rgb(var(--arcoblue-6)) 0%, rgb(var(--purple-6)) 100%);
 }
 
 .status-text {
-  margin-top: 1.5rem;
+  margin-top: 2rem;
 }
 
 .main-status {
-  font-size: 1.2rem;
-  font-weight: 500;
-  margin: 0 0 0.5rem 0;
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin: 0 0 0.75rem 0;
   color: var(--color-text-1);
 }
 
 .sub-status {
   margin: 0;
   color: var(--color-text-3);
+  font-size: 1rem;
 }
 </style>

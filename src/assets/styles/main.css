@@ -10,6 +10,7 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
     'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
     'Noto Color Emoji';
+  background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
 }
 
 * {
@@ -25,30 +26,48 @@ body {
   padding: 0;
 }
 
+.arco-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.arco-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+}
+
+.arco-btn-primary {
+  background: linear-gradient(135deg, rgb(var(--arcoblue-6)) 0%, rgb(var(--purple-6)) 100%);
+  border: none;
+}
+
+.arco-btn-primary:hover {
+  background: linear-gradient(135deg, rgb(var(--arcoblue-7)) 0%, rgb(var(--purple-7)) 100%);
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
   background: var(--color-fill-2);
+  border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-fill-4);
-  border-radius: 4px;
+  background: linear-gradient(135deg, rgb(var(--arcoblue-4)) 0%, rgb(var(--purple-4)) 100%);
+  border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-fill-3);
+  background: linear-gradient(135deg, rgb(var(--arcoblue-5)) 0%, rgb(var(--purple-5)) 100%);
 }
 
 /* Animations */
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
@@ -57,5 +76,28 @@ body {
 }
 
 .fade-in {
-  animation: fadeIn 0.3s ease-in-out;
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.slide-in-up {
+  animation: slideInUp 0.6s ease-out;
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, rgb(var(--arcoblue-6)) 0%, rgb(var(--purple-6)) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }

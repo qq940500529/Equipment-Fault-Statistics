@@ -16,7 +16,7 @@ const app = createApp(App)
 app.use(createPinia())
 app.use(router)
 app.use(ArcoVue)
-app.use(ArcoVueIcon) // This registers all icons globally
+app.use(ArcoVueIcon) // Register all icons
 
 app.mount('#app')
 
