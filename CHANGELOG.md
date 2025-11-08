@@ -7,8 +7,22 @@
 
 ## [未发布]
 
+## [0.4.0] - 2025-11-08 - Phase 5-6 完成
+
 ### 新增
-- CI/CD发布流水线 ✅
+- **数据导出模块** (Phase 5)
+  - Excel格式导出功能
+  - CSV格式导出功能
+  - JSON格式导出功能
+- **数据可视化模块** (Phase 6)
+  - paretoChartGenerator.js: 帕累托图生成器
+  - 4级数据钻取（车间 → 设备 → 设备编号 → 失效类型）
+  - 3种分析指标（等待时间、维修时间、故障时间）
+  - 前20%关键项筛选功能
+  - 累计百分比曲线显示
+  - 响应式设计支持
+  - 平滑动画过渡效果
+- CI/CD发布流水线
   - 手动触发的release workflow
   - 版本号验证（检查与已发布版本的冲突）
   - 自动打包release包（仅包含核心程序文件）
@@ -17,25 +31,29 @@
   - 自动生成发布说明
 
 ### 变更
-- 清理过时文档 ✅
+- 测试用例增加到125个（新增38个测试用例）
+- 清理过时文档
   - 删除Phase完成报告文件（PHASE1_COMPLETION.md, PHASE2_COMPLETION.md, PHASE3_4_COMPLETION.md）
   - 删除开发总结文件（DEVELOPMENT_SUMMARY.md）
   - 删除Wiki相关文件（WIKI_DOCUMENTATION.md, WIKI_SUMMARY.txt, publish-wiki.sh）
   - 删除测试文件（test-modal.html）
   - 删除帕累托图修复相关临时文档（README_FIX.md, PARETO_CHART_FIX.md, PARETO_CHART_TESTING.md）
-- 更新项目状态文档 ✅
-  - 更新README.md反映Phase 6（帕累托图）已完成
+- 更新项目状态文档
+  - 更新README.md反映Phase 5-6已完成
   - 更新测试用例数量（125个）
   - 更新package.json描述为"Phase 1-6 已完成"
   - 添加帕累托图功能说明
-- 更新README.md ✅
+- 更新README.md
   - 移除已删除文件的引用
   - 添加发布流程说明
-- 更新CONTRIBUTING.md ✅
+- 更新CONTRIBUTING.md
   - 添加完整的版本发布流程文档
 
-### 计划中
-- Phase 7: 用户界面优化
+### 技术实现
+- 完整的帕累托图可视化功能
+- ECharts集成和优化
+- 多级数据钻取和过滤
+- 响应式图表设计
 
 ## [0.3.0] - 2024-11-07 - Phase 3-4 完成
 
