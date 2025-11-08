@@ -202,8 +202,9 @@ export class ParetoChartGenerator {
             };
         });
         
-        // 找到累计百分比达到20%的位置（即前20%的项）
-        const cutoffIndex = paretoData.findIndex(item => item.cumulativePercentage >= 20);
+        // 找到累计百分比达到80%的位置（帕累托原则：20%的项目产生80%的结果）
+        // 这些是"关键少数"（vital few），应该被优先关注
+        const cutoffIndex = paretoData.findIndex(item => item.cumulativePercentage >= 80);
         const top20Index = cutoffIndex >= 0 ? cutoffIndex : paretoData.length - 1;
         
         return {
@@ -278,11 +279,18 @@ export class ParetoChartGenerator {
         
         // FIX #1: 渲染后立即调整图表大小，确保宽度正确
         // This fixes the issue where chart width is insufficient on initial display
+        // 使用requestAnimationFrame确保在浏览器下一次重绘前调整大小
+        requestAnimationFrame(() => {
+            if (this.chart) {
+                this.chart.resize();
+            }
+        });
+        // 双重保险：再延迟一次确保容器完全渲染
         setTimeout(() => {
             if (this.chart) {
                 this.chart.resize();
             }
-        }, 100);
+        }, 150);
     }
     
     /**
