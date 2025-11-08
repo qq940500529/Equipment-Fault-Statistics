@@ -314,7 +314,15 @@ export class ParetoChartGenerator {
             title: {
                 text: `${levelInfo.title} - ${metricInfo.name}`,
                 subtext: breadcrumb,
-                left: 'center'
+                left: 'center',
+                top: 10,
+                textStyle: {
+                    fontSize: 16
+                },
+                subtextStyle: {
+                    fontSize: 12,
+                    color: '#666'
+                }
             },
             tooltip: {
                 trigger: 'axis',
@@ -332,12 +340,14 @@ export class ParetoChartGenerator {
             },
             legend: {
                 data: [metricInfo.name, '累计百分比'],
-                top: 40
+                top: 60,
+                left: 'center'
             },
             grid: {
                 left: '3%',
                 right: '4%',
-                bottom: '15%',
+                bottom: '20%',
+                top: '110px',
                 containLabel: true
             },
             xAxis: [
@@ -346,7 +356,9 @@ export class ParetoChartGenerator {
                     data: names,
                     axisLabel: {
                         interval: 0,
-                        rotate: 45
+                        rotate: 45,
+                        fontSize: 11,
+                        margin: 10
                     }
                 }
             ],
@@ -376,8 +388,11 @@ export class ParetoChartGenerator {
                         position: 'top',
                         formatter: (params) => {
                             const item = displayData[params.dataIndex];
-                            return `${item.value.toFixed(2)}\n(${item.percentage}%)`;
-                        }
+                            // 只显示值，不显示百分比，避免文字过多
+                            return `${item.value.toFixed(1)}`;
+                        },
+                        fontSize: 11,
+                        color: '#333'
                     },
                     emphasis: {
                         itemStyle: {
@@ -393,7 +408,7 @@ export class ParetoChartGenerator {
                     data: cumulativePercentages,
                     smooth: true,
                     symbol: 'circle',
-                    symbolSize: 8,
+                    symbolSize: 6,
                     lineStyle: {
                         color: '#ee6666',
                         width: 2
@@ -404,7 +419,10 @@ export class ParetoChartGenerator {
                     label: {
                         show: true,
                         position: 'top',
-                        formatter: '{c}%'
+                        formatter: '{c}%',
+                        fontSize: 10,
+                        color: '#ee6666',
+                        offset: [0, -10]
                     }
                 }
             ],
