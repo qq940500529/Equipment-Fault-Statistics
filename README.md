@@ -2,7 +2,9 @@
 
 ## 项目简介
 
-这是一个纯前端的设备故障数据处理与可视化平台，用于处理设备维修记录的Excel数据，并生成统计图表。系统完全运行在浏览器端，无需后端服务器部署，支持离线使用。
+🎉 **已迁移到 Vue 3 + Arco Design!** - 查看 [VUE3_MIGRATION.md](VUE3_MIGRATION.md) 了解详情
+
+这是一个基于 **Vue 3** 和 **Arco Design** 的设备故障数据处理与可视化平台，用于处理设备维修记录的Excel数据，并生成统计图表。系统完全运行在浏览器端，无需后端服务器部署，支持离线使用。
 
 ## 核心功能
 
@@ -21,7 +23,7 @@
 
 ## 项目状态
 
-当前版本: **v0.4.0**
+当前版本: **v0.5.0** (Vue 3 + Arco Design)
 
 已完成阶段:
 - ✅ **Phase 1** - 基础设施搭建
@@ -29,6 +31,7 @@
 - ✅ **Phase 3-4** - 数据验证与转换
 - ✅ **Phase 5** - 数据导出功能
 - ✅ **Phase 6** - 数据可视化（帕累托图）
+- ✅ **Phase 7** - Vue 3 + Arco Design 迁移 🎉
 
 详细进度:
 - [x] 架构设计文档
@@ -78,31 +81,37 @@
 
 ## 快速开始
 
-### 方式1: 直接运行（推荐）
-
-1. 下载项目文件
-2. 双击打开 `index.html`
-3. 在浏览器中开始使用
-
-### 方式2: 本地Web服务器
+### 方式1: 开发模式（推荐）
 
 ```bash
-# 使用Python
-python -m http.server 8000
+# 安装依赖
+npm install
 
-# 使用Node.js
-npx http-server
+# 启动开发服务器
+npm run dev
 
-# 然后在浏览器中访问
-# http://localhost:8000
+# 访问 http://localhost:8000
 ```
 
-### 方式3: 在线访问
+### 方式2: 生产构建
 
+```bash
+# 构建生产版本
+npm run build
+
+# 预览构建结果
+npm run preview
 ```
-# 部署到GitHub Pages后可直接访问
-https://qq940500529.github.io/Equipment-Fault-Statistics/
-```
+
+### 方式3: 直接运行构建版（无需Node.js）
+
+1. 运行 `npm run build` 生成 dist 目录
+2. 双击 `dist/index.html` 或部署 dist 文件夹
+
+### 方式4: 使用Legacy版本（vanilla JS）
+
+1. 打开 `index-legacy.html`
+2. 在浏览器中直接使用（无需构建）
 
 ## 功能说明
 
@@ -130,16 +139,21 @@ https://qq940500529.github.io/Equipment-Fault-Statistics/
 ## 技术栈
 
 ### 核心技术
-- **前端框架**: 原生JavaScript (ES6+)
+- **前端框架**: Vue 3 (Composition API)
+- **UI组件库**: Arco Design (by ByteDance)
+- **构建工具**: Vite
+- **状态管理**: Pinia
+- **路由**: Vue Router
 - **Excel处理**: SheetJS (xlsx)
 - **图表库**: Apache ECharts
 - **日期处理**: Day.js
-- **UI框架**: Bootstrap 5
 
 ### 开发工具
 - Git - 版本控制
 - ESLint - 代码检查
 - Prettier - 代码格式化
+
+**注意**: 原vanilla JavaScript版本已保留为 `index-legacy.html`
 
 ## 浏览器兼容性
 
