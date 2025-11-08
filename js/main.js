@@ -983,6 +983,9 @@ class App {
             // 初始化图表（如果还没有初始化）
             if (!this.paretoChart) {
                 this.paretoChart = new ParetoChartGenerator('paretoChartContainer');
+                
+                // Set up state change callback to update button states
+                this.paretoChart.onStateChange = () => this.updateChartBackButton();
             }
 
             // 设置数据

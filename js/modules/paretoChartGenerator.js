@@ -21,6 +21,7 @@ export class ParetoChartGenerator {
         this.showTop20Only = false; // 是否只显示前20%
         this.navigationStack = []; // 导航栈，用于返回
         this.currentFilters = {}; // 当前的筛选条件
+        this.onStateChange = null; // Callback for state changes (e.g., to update UI buttons)
         
         // 层级定义
         this.levels = [
@@ -103,6 +104,11 @@ export class ParetoChartGenerator {
             this.currentLevel = previousState.level;
             this.currentFilters = previousState.filters;
             this.renderChart();
+            
+            // Notify state change
+            if (this.onStateChange) {
+                this.onStateChange();
+            }
         }
     }
     
@@ -145,6 +151,11 @@ export class ParetoChartGenerator {
         
         // 重新渲染图表
         this.renderChart();
+        
+        // Notify state change
+        if (this.onStateChange) {
+            this.onStateChange();
+        }
     }
     
     /**
@@ -456,6 +467,11 @@ export class ParetoChartGenerator {
         this.navigationStack = [];
         this.showTop20Only = false;
         this.renderChart();
+        
+        // Notify state change
+        if (this.onStateChange) {
+            this.onStateChange();
+        }
     }
     
     /**
