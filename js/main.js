@@ -428,12 +428,19 @@ class App {
         // FIX #1: 如果是图表步骤，在显示后调整图表大小并更新返回按钮状态
         // This fixes the width issue by resizing after the container is visible
         if (step === 5) {
+            // 多次resize确保图表宽度正确
+            [50, 150, 300, 500].forEach(delay => {
+                setTimeout(() => {
+                    if (this.paretoChart) {
+                        this.paretoChart.resize();
+                    }
+                }, delay);
+            });
+            
+            // 更新返回按钮状态
             setTimeout(() => {
-                if (this.paretoChart) {
-                    this.paretoChart.resize();
-                }
                 this.updateChartBackButton();
-            }, 300); // Wait for CSS transitions to complete
+            }, 300);
         }
     }
 
