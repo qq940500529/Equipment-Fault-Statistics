@@ -15,8 +15,13 @@ export function useDataParser() {
    */
   function parseExcel(fileData) {
     try {
+      // Validate fileData
+      if (!fileData) {
+        throw new Error('文件数据为空')
+      }
+      
       // Read workbook
-      const workbook = XLSX.read(fileData, { type: 'array', cellDates: true })
+      const workbook = XLSX.read(fileData, { type: 'buffer', cellDates: true })
       
       // Get first sheet
       const firstSheetName = workbook.SheetNames[0]
