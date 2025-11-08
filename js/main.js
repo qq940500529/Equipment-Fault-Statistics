@@ -11,6 +11,7 @@ import { FileUploader } from './modules/fileUploader.js';
 import { DataParser } from './modules/dataParser.js';
 import { DataValidator } from './modules/dataValidator.js';
 import { DataTransformer } from './modules/dataTransformer.js';
+import { ParetoChartGenerator } from './modules/paretoChartGenerator.js';
 
 /**
  * 应用程序类
@@ -27,6 +28,7 @@ class App {
         this.dataParser = new DataParser();
         this.dataValidator = new DataValidator();
         this.dataTransformer = new DataTransformer();
+        this.paretoChart = null;
         this.currentFile = null;
         this.validationResult = null;
     }
@@ -98,6 +100,49 @@ class App {
         if (resetBtn) {
             resetBtn.addEventListener('click', () => this.handleReset());
         }
+
+        // 查看图表按钮
+        const viewChartBtn = document.getElementById('viewChartBtn');
+        if (viewChartBtn) {
+            viewChartBtn.addEventListener('click', () => this.handleViewChart());
+        }
+
+        // 返回结果按钮
+        const backToResultsBtn = document.getElementById('backToResultsBtn');
+        if (backToResultsBtn) {
+            backToResultsBtn.addEventListener('click', () => this.handleBackToResults());
+        }
+
+        // 指标选择按钮
+        const metricButtons = document.querySelectorAll('[data-metric]');
+        metricButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => this.handleMetricChange(e));
+        });
+
+        // 切换显示前20%按钮
+        const toggleTop20Btn = document.getElementById('toggleTop20Btn');
+        if (toggleTop20Btn) {
+            toggleTop20Btn.addEventListener('click', () => this.handleToggleTop20());
+        }
+
+        // 图表返回按钮
+        const chartBackBtn = document.getElementById('chartBackBtn');
+        if (chartBackBtn) {
+            chartBackBtn.addEventListener('click', () => this.handleChartBack());
+        }
+
+        // 图表重置按钮
+        const chartResetBtn = document.getElementById('chartResetBtn');
+        if (chartResetBtn) {
+            chartResetBtn.addEventListener('click', () => this.handleChartReset());
+        }
+
+        // 窗口大小改变时调整图表大小
+        window.addEventListener('resize', () => {
+            if (this.paretoChart) {
+                this.paretoChart.resize();
+            }
+        });
     }
 
     /**
@@ -363,11 +408,26 @@ class App {
      */
     showStep(step) {
         this.currentStep = step;
+        
+        // 隐藏所有步骤
+        for (let i = 1; i <= 5; i++) {
+            const stepElement = document.getElementById(`step-${i}`);
+            if (stepElement && i !== step) {
+                stepElement.style.display = 'none';
+            }
+        }
+        
+        // 显示目标步骤
         const stepElement = document.getElementById(`step-${step}`);
         if (stepElement) {
             stepElement.style.display = 'block';
             // 平滑滚动到该步骤
             stepElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        
+        // 如果是图表步骤，更新返回按钮状态
+        if (step === 5) {
+            this.updateChartBackButton();
         }
     }
 
@@ -902,6 +962,146 @@ class App {
         updateProgress(0, '');
         
         showSuccess('已重置，可以处理新文件', 2000);
+    }
+
+    /**
+     * 处理查看图表
+     */
+    handleViewChart() {
+        if (!this.processedData || this.processedData.length === 0) {
+            showError('没有可显示的数据');
+            return;
+        }
+
+        try {
+            // 初始化图表（如果还没有初始化）
+            if (!this.paretoChart) {
+                this.paretoChart = new ParetoChartGenerator('paretoChartContainer');
+            }
+
+            // 设置数据
+            this.paretoChart.setData(this.processedData);
+
+            // 切换到图表步骤
+            this.showStep(5);
+
+            showSuccess('帕累托图已加载', 2000);
+        } catch (error) {
+            console.error('显示图表错误:', error);
+            showError('显示图表失败: ' + error.message);
+        }
+    }
+
+    /**
+     * 处理返回结果
+     */
+    handleBackToResults() {
+        this.showStep(4);
+    }
+
+    /**
+     * 处理指标切换
+     */
+    handleMetricChange(event) {
+        const btn = event.currentTarget;
+        const metric = btn.getAttribute('data-metric');
+
+        if (!this.paretoChart) {
+            return;
+        }
+
+        // 更新按钮状态
+        document.querySelectorAll('[data-metric]').forEach(b => {
+            b.classList.remove('active');
+        });
+        btn.classList.add('active');
+
+        // 切换指标
+        this.paretoChart.switchMetric(metric);
+    }
+
+    /**
+     * 处理切换显示前20%
+     */
+    handleToggleTop20() {
+        if (!this.paretoChart) {
+            return;
+        }
+
+        this.paretoChart.toggleTop20();
+
+        // 更新按钮文本
+        const btn = document.getElementById('toggleTop20Btn');
+        if (btn) {
+            if (this.paretoChart.showTop20Only) {
+                btn.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-funnel-fill" viewBox="0 0 16 16">
+                        <path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5v-2z"/>
+                    </svg>
+                    显示全部
+                `;
+            } else {
+                btn.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-funnel" viewBox="0 0 16 16">
+                        <path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5v-2zm1 .5v1.308l4.372 4.858A.5.5 0 0 1 7 8.5v5.306l2-.666V8.5a.5.5 0 0 1 .128-.334L13.5 3.308V2h-11z"/>
+                    </svg>
+                    仅显示前20%
+                `;
+            }
+        }
+    }
+
+    /**
+     * 处理图表返回
+     */
+    handleChartBack() {
+        if (!this.paretoChart) {
+            return;
+        }
+
+        this.paretoChart.goBack();
+        this.updateChartBackButton();
+    }
+
+    /**
+     * 处理图表重置
+     */
+    handleChartReset() {
+        if (!this.paretoChart) {
+            return;
+        }
+
+        this.paretoChart.reset();
+        this.updateChartBackButton();
+
+        // 重置指标按钮
+        document.querySelectorAll('[data-metric]').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        document.getElementById('metricWaitTime')?.classList.add('active');
+
+        // 重置Top20按钮
+        const toggleBtn = document.getElementById('toggleTop20Btn');
+        if (toggleBtn) {
+            toggleBtn.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-funnel" viewBox="0 0 16 16">
+                    <path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5v-2zm1 .5v1.308l4.372 4.858A.5.5 0 0 1 7 8.5v5.306l2-.666V8.5a.5.5 0 0 1 .128-.334L13.5 3.308V2h-11z"/>
+                </svg>
+                仅显示前20%
+            `;
+        }
+
+        showSuccess('图表已重置', 2000);
+    }
+
+    /**
+     * 更新图表返回按钮状态
+     */
+    updateChartBackButton() {
+        const chartBackBtn = document.getElementById('chartBackBtn');
+        if (chartBackBtn && this.paretoChart) {
+            chartBackBtn.disabled = this.paretoChart.navigationStack.length === 0;
+        }
     }
 }
 
