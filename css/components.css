@@ -490,3 +490,82 @@
         padding: 1rem;
     }
 }
+
+/* Pareto Chart Styles */
+#paretoChartContainer {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 10px;
+    min-height: 600px;
+}
+
+.btn-toolbar .btn-group {
+    gap: 5px;
+}
+
+.btn-toolbar .btn-group label {
+    font-weight: 500;
+    color: #495057;
+}
+
+/* Metric buttons */
+[data-metric] {
+    transition: all 0.3s ease;
+}
+
+[data-metric].active {
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+/* Chart control buttons */
+#toggleTop20Btn,
+#chartBackBtn,
+#chartResetBtn {
+    transition: all 0.3s ease;
+}
+
+#toggleTop20Btn:hover,
+#chartBackBtn:hover:not(:disabled),
+#chartResetBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+#chartBackBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Chart legend styles */
+.alert-info ul {
+    padding-left: 1.5rem;
+    margin-bottom: 0;
+}
+
+.alert-info ul li {
+    margin-bottom: 0.25rem;
+}
+
+/* Responsive adjustments for chart */
+@media (max-width: 768px) {
+    #paretoChartContainer {
+        height: 400px !important;
+        min-height: 400px;
+    }
+    
+    .btn-toolbar {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .btn-toolbar .btn-group {
+        width: 100%;
+        flex-direction: column;
+    }
+    
+    .btn-toolbar .btn-group button {
+        width: 100%;
+    }
+}
