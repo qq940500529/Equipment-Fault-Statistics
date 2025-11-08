@@ -315,13 +315,14 @@ export class ParetoChartGenerator {
                 text: `${levelInfo.title} - ${metricInfo.name}`,
                 subtext: breadcrumb,
                 left: 'center',
-                top: 10,
+                top: 5,
                 textStyle: {
-                    fontSize: 16
+                    fontSize: 14
                 },
                 subtextStyle: {
-                    fontSize: 12,
-                    color: '#666'
+                    fontSize: 11,
+                    color: '#666',
+                    lineHeight: 18
                 }
             },
             tooltip: {
@@ -339,15 +340,18 @@ export class ParetoChartGenerator {
                 }
             },
             legend: {
-                data: [metricInfo.name, '累计百分比'],
-                top: 60,
-                left: 'center'
+                data: [metricInfo.name + ' (累计贡献≤80%为关键项)', '累计百分比曲线'],
+                top: 50,
+                left: 'center',
+                textStyle: {
+                    fontSize: 11
+                }
             },
             grid: {
                 left: '3%',
                 right: '4%',
-                bottom: '20%',
-                top: '110px',
+                bottom: '22%',
+                top: '85px',
                 containLabel: true
             },
             xAxis: [
@@ -391,8 +395,9 @@ export class ParetoChartGenerator {
                             // 只显示值，不显示百分比，避免文字过多
                             return `${item.value.toFixed(1)}`;
                         },
-                        fontSize: 11,
-                        color: '#333'
+                        fontSize: 10,
+                        color: '#333',
+                        offset: [0, -5]
                     },
                     emphasis: {
                         itemStyle: {
@@ -420,9 +425,9 @@ export class ParetoChartGenerator {
                         show: true,
                         position: 'top',
                         formatter: '{c}%',
-                        fontSize: 10,
+                        fontSize: 9,
                         color: '#ee6666',
-                        offset: [0, -10]
+                        offset: [0, -18]
                     }
                 }
             ],
