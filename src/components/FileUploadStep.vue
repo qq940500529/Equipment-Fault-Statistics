@@ -45,7 +45,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import { Message, IconCloudUpload, IconCheckCircle } from '@arco-design/web-vue'
+import { Message } from '@arco-design/web-vue'
 import { useDataStore } from '@/stores/dataStore'
 import { useFileUploader } from '@/composables/useFileUploader'
 import { useDataParser } from '@/composables/useDataParser'

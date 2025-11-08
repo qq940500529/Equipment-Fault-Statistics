@@ -80,14 +80,6 @@
 
 <script setup>
 import { computed } from 'vue'
-import { 
-  IconFile,
-  IconApps,
-  IconList,
-  IconInfoCircle,
-  IconLeft,
-  IconRight 
-} from '@arco-design/web-vue'
 import { useDataStore } from '@/stores/dataStore'
 import { useDataParser } from '@/composables/useDataParser'
 

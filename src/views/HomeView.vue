@@ -84,17 +84,6 @@
 
 <script setup>
 import { computed } from 'vue'
-import { 
-  IconApps,
-  IconSafe,
-  IconUpload,
-  IconEye,
-  IconSync,
-  IconCheckCircle,
-  IconBarChart,
-  IconHeartFill,
-  IconGithub
-} from '@arco-design/web-vue'
 import { useDataStore } from '@/stores/dataStore'
 import FileUploadStep from '@/components/FileUploadStep.vue'
 import DataPreviewStep from '@/components/DataPreviewStep.vue'

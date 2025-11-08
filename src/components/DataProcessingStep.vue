@@ -30,7 +30,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { Message, IconSync } from '@arco-design/web-vue'
+import { Message } from '@arco-design/web-vue'
 import { useDataStore } from '@/stores/dataStore'
 import { useDataParser } from '@/composables/useDataParser'
 import { useDataValidator } from '@/composables/useDataValidator'

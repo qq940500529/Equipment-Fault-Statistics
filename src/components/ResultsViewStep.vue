@@ -116,18 +116,7 @@
 
 <script setup>
 import { computed } from 'vue'
-import { 
-  Message,
-  IconCheckCircle,
-  IconCheckCircleFill,
-  IconDelete,
-  IconCloseCircle,
-  IconApps,
-  IconUserGroup,
-  IconBarChart,
-  IconDownload,
-  IconRefresh
-} from '@arco-design/web-vue'
+import { Message } from '@arco-design/web-vue'
 import { useDataStore } from '@/stores/dataStore'
 import { useDataExporter } from '@/composables/useDataExporter'
 import { COLUMN_MAPPINGS } from '@/config/constants'
