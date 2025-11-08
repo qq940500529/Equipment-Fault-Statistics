@@ -88,28 +88,6 @@ import {
 } from '@arco-design/web-vue'
 import { useDataStore } from '@/stores/dataStore'
 import { useParetoChart } from '@/composables/useParetoChart'
-      </div>
-    </a-alert>
-
-    <!-- Chart Container -->
-    <div ref="chartContainer" class="chart-container"></div>
-
-    <!-- Back to Results -->
-    <a-space class="actions" :size="16">
-      <a-button @click="$emit('back')">
-        <template #icon>
-          <icon-left />
-        </template>
-        返回处理结果
-      </a-button>
-    </a-space>
-  </a-card>
-</template>
-
-<script setup>
-import { ref, onMounted, onUnmounted, watch } from 'vue'
-import { useDataStore } from '@/stores/dataStore'
-import { useParetoChart } from '@/composables/useParetoChart'
 
 const emit = defineEmits(['back'])
 
