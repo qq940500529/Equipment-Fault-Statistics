@@ -2,7 +2,7 @@
   <a-card class="step-card" :bordered="false">
     <template #title>
       <div class="card-title">
-        <icon-cloud-upload :size="24" style="margin-right: 8px;" />
+        <icon-upload :size="24" style="margin-right: 8px;" />
         <span>上传Excel文件</span>
       </div>
     </template>
@@ -19,7 +19,7 @@
       <template #upload-button>
         <div class="upload-area">
           <div class="upload-icon">
-            <icon-cloud-upload :size="64" />
+            <icon-upload :size="64" />
           </div>
           <div class="upload-text">
             <p class="upload-title">拖拽文件到这里或点击选择文件</p>
