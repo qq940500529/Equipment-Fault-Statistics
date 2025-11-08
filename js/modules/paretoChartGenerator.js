@@ -177,18 +177,46 @@ export class ParetoChartGenerator {
             return;
         }
         
-        // 尝试通过点击位置估算点击了哪一级
-        // 由于ECharts没有提供精确的文字级别点击检测，
-        // 我们采用简化策略：点击面包屑区域时返回上一级
-        // 如果需要更精确的控制，建议在UI中使用独立的面包屑导航组件
+        // 估算点击的层级位置
+        // 由于ECharts限制，使用简化策略：基于点击位置估算层级
         
-        // 获取标题宽度和点击位置
-        const option = this.chart.getOption();
-        const breadcrumbData = this.getBreadcrumbRich();
+        const chartWidth = this.chart.getWidth();
+        const clickX = params.offsetX;
         
-        // 简化实现：点击面包屑副标题区域时，返回上一级
-        // 连续点击可以逐级返回到顶层
-        this.goBack();
+        // 构建层级数组
+        const levels = ['全部'];
+        this.navigationStack.forEach(item => levels.push(item.value));
+        
+        // 粗略估算：假设每个层级占据均匀宽度
+        // 考虑到中文字符和箭头的宽度，使用更精确的估算
+        const totalLevels = levels.length;
+        const estimatedLevelWidth = chartWidth * 0.3 / totalLevels; // 面包屑区域大约占30%宽度
+        
+        // 计算目标层级
+        let targetLevel = Math.floor((clickX - 10) / estimatedLevelWidth);
+        targetLevel = Math.max(0, Math.min(targetLevel, this.currentLevel));
+        
+        // 如果点击的是当前层级或更高层级，不处理
+        if (targetLevel >= this.currentLevel) {
+            return;
+        }
+        
+        // 跳转到目标层级
+        const stepsBack = this.currentLevel - targetLevel;
+        for (let i = 0; i < stepsBack; i++) {
+            if (this.navigationStack.length > 0) {
+                this.navigationStack.pop();
+                this.currentLevel--;
+            }
+        }
+        
+        // 重新渲染
+        this.renderChart();
+        
+        // 通知状态变化
+        if (this.onStateChange) {
+            this.onStateChange();
+        }
     }
     
     /**
