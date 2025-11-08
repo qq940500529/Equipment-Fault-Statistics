@@ -279,26 +279,18 @@ export class ParetoChartGenerator {
         
         // FIX #1: 渲染后立即调整图表大小，确保宽度正确
         // This fixes the issue where chart width is insufficient on initial display
-        // 使用多次resize确保图表宽度正确，因为容器可能需要时间完成布局
-        
-        // 立即resize一次
-        this.chart.resize();
-        
-        // requestAnimationFrame: 在下一帧重绘前resize
+        // 使用requestAnimationFrame确保在浏览器下一次重绘前调整大小
         requestAnimationFrame(() => {
             if (this.chart) {
                 this.chart.resize();
             }
         });
-        
-        // 多次延迟resize确保容器完全渲染（针对复杂的CSS过渡）
-        [100, 200, 400].forEach(delay => {
-            setTimeout(() => {
-                if (this.chart) {
-                    this.chart.resize();
-                }
-            }, delay);
-        });
+        // 双重保险：再延迟一次确保容器完全渲染
+        setTimeout(() => {
+            if (this.chart) {
+                this.chart.resize();
+            }
+        }, 150);
     }
     
     /**
