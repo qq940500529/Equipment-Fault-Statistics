@@ -29,7 +29,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, watch } from 'vue'
 import { Message } from '@arco-design/web-vue'
 import { useDataStore } from '@/stores/dataStore'
 import { useDataParser } from '@/composables/useDataParser'
@@ -47,9 +47,21 @@ const processing = ref(false)
 const progress = ref(0)
 const statusText = ref('正在初始化...')
 const subStatus = ref('')
+const hasProcessedOnce = ref(false)
 
-onMounted(() => {
-  processData()
+// Watch for when we reach step 3 AND have data to process
+watch(() => dataStore.currentStep, (newStep) => {
+  console.log('Step changed to:', newStep, 'hasRawData:', dataStore.hasRawData, 'hasProcessedOnce:', hasProcessedOnce.value)
+  
+  // Only auto-process when:
+  // 1. We reach step 3
+  // 2. We have raw data to process
+  // 3. We haven't processed yet
+  if (newStep === 3 && dataStore.hasRawData && !hasProcessedOnce.value) {
+    console.log('Auto-starting data processing...')
+    hasProcessedOnce.value = true
+    processData()
+  }
 })
 
 async function processData() {
@@ -59,12 +71,23 @@ async function processData() {
     // Step 1: Validate data
     await updateProgress(10, '正在验证数据...', '检查数据完整性')
     
+    console.log('=== Data Processing Start ===')
+    console.log('Raw data rows:', dataStore.rawData?.length)
+    
     const columnMapping = getColumnMapping()
+    console.log('Column mapping:', columnMapping)
+    
     const validationResult = validate(dataStore.rawData, columnMapping)
+    console.log('Validation result:', validationResult)
+    
     dataStore.setValidationResult(validationResult)
     
     if (!validationResult.valid) {
-      Message.error('数据验证失败，请检查数据并修正错误后重试')
+      console.error('Validation errors:', validationResult.errors)
+      Message.error({
+        content: '数据验证失败：' + validationResult.errors.join(', '),
+        duration: 5000
+      })
       processing.value = false
       return
     }
@@ -74,7 +97,13 @@ async function processData() {
     // Step 2: Transform data
     await updateProgress(50, '正在处理数据...', '删除无效行、分列、计算时间')
     
+    console.log('Starting data transformation...')
     const transformResult = transform(dataStore.rawData, columnMapping)
+    console.log('Transform result:', {
+      processedRows: transformResult.data?.length,
+      stats: transformResult.stats
+    })
+    
     dataStore.setProcessedData(transformResult.data)
     dataStore.setStats(transformResult.stats)
     dataStore.setDeletedRows(getDeletedRows())
@@ -88,12 +117,19 @@ async function processData() {
     
     Message.success(`数据处理成功！处理后共 ${transformResult.data.length} 行数据`)
     
+    console.log('=== Data Processing Complete ===')
+    
     // Move to next step
     emit('next')
     
   } catch (error) {
-    console.error('数据处理错误:', error)
-    Message.error(error.message || '数据处理失败')
+    console.error('=== Data Processing Error ===')
+    console.error('Error details:', error)
+    console.error('Stack trace:', error.stack)
+    Message.error({
+      content: error.message || '数据处理失败',
+      duration: 5000
+    })
   } finally {
     processing.value = false
   }
