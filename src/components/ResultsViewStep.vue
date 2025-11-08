@@ -97,7 +97,12 @@
 <script setup>
 import { computed } from 'vue'
 import { Message } from '@arco-design/web-vue'
-import { IconCheckCircle, IconBarChart, IconDownload, IconRefresh } from '@arco-design/web-vue/es/icon'
+import { 
+  IconCheckCircle,
+  IconBarChart,
+  IconDownload,
+  IconRefresh 
+} from '@arco-design/web-vue/es/icon'
 import { useDataStore } from '@/stores/dataStore'
 import { useDataExporter } from '@/composables/useDataExporter'
 import { COLUMN_MAPPINGS } from '@/config/constants'

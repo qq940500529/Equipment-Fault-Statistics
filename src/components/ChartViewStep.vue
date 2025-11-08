@@ -68,7 +68,12 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, watch } from 'vue'
-import { IconFilter, IconLeft, IconRefresh, IconInfoCircle } from '@arco-design/web-vue/es/icon'
+import { 
+  IconFilter,
+  IconLeft,
+  IconRefresh,
+  IconInfoCircle 
+} from '@arco-design/web-vue/es/icon'
 import { useDataStore } from '@/stores/dataStore'
 import { useParetoChart } from '@/composables/useParetoChart'
 

@@ -62,7 +62,11 @@
 
 <script setup>
 import { computed } from 'vue'
-import { IconInfoCircle, IconLeft, IconRight } from '@arco-design/web-vue/es/icon'
+import { 
+  IconInfoCircle,
+  IconLeft,
+  IconRight 
+} from '@arco-design/web-vue/es/icon'
 import { useDataStore } from '@/stores/dataStore'
 import { useDataParser } from '@/composables/useDataParser'
 
