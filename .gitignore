@@ -45,11 +45,6 @@ temp/
 coverage/
 .nyc_output/
 
-# Playwright (browser automation artifacts)
-playwright-report/
-test-results/
-.playwright/
-
 # Debug files
 *.log
 *.pid
