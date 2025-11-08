@@ -1,7 +1,7 @@
 {
   "name": "equipment-fault-statistics",
-  "version": "0.3.0",
-  "description": "设备故障统计系统 - 纯前端Excel数据处理与可视化平台 (Phase 3-4 已完成)",
+  "version": "0.4.0",
+  "description": "设备故障统计系统 - 纯前端Excel数据处理与可视化平台 (Phase 1-6 已完成)",
   "main": "js/main.js",
   "type": "module",
   "directories": {
