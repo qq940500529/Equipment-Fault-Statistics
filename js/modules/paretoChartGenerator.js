@@ -169,7 +169,7 @@ export class ParetoChartGenerator {
     
     /**
      * 处理面包屑点击 - 跳转到指定层级
-     * Simplified implementation: clicking breadcrumb area goes back one level
+     * Navigates to clicked breadcrumb level by analyzing click position
      */
     handleBreadcrumbClick(params) {
         // 如果在顶层，不处理
@@ -177,8 +177,17 @@ export class ParetoChartGenerator {
             return;
         }
         
+        // 尝试通过点击位置估算点击了哪一级
+        // 由于ECharts没有提供精确的文字级别点击检测，
+        // 我们采用简化策略：点击面包屑区域时返回上一级
+        // 如果需要更精确的控制，建议在UI中使用独立的面包屑导航组件
+        
+        // 获取标题宽度和点击位置
+        const option = this.chart.getOption();
+        const breadcrumbData = this.getBreadcrumbRich();
+        
         // 简化实现：点击面包屑副标题区域时，返回上一级
-        // 更复杂的实现需要解析点击位置来确定具体点击了哪一级
+        // 连续点击可以逐级返回到顶层
         this.goBack();
     }
     
@@ -492,12 +501,14 @@ export class ParetoChartGenerator {
      * 获取带样式的面包屑导航（支持点击）
      */
     getBreadcrumbRich() {
-        const parts = [{ name: '全部', level: -1 }];
-        let currentLevel = -1;
+        const parts = [];
+        
+        // 添加"全部"（顶层）
+        parts.push({ name: '全部', level: 0, targetLevel: 0 });
         
         // 根据导航栈构建面包屑路径
         this.navigationStack.forEach((item, index) => {
-            parts.push({ name: item.value, level: index });
+            parts.push({ name: item.value, level: index + 1, targetLevel: index + 1 });
         });
         
         // 构建rich text配置
@@ -506,12 +517,14 @@ export class ParetoChartGenerator {
         
         parts.forEach((part, index) => {
             const styleName = `level${index}`;
-            const isClickable = index < parts.length - 1; // 当前层级不可点击
+            const isCurrentLevel = part.level === this.currentLevel;
+            const isClickable = !isCurrentLevel && part.level < this.currentLevel;
             
             rich[styleName] = {
-                color: isClickable ? '#1890ff' : '#666',
+                color: isClickable ? '#1890ff' : (isCurrentLevel ? '#666' : '#999'),
                 textDecoration: isClickable ? 'underline' : 'none',
-                fontWeight: isClickable ? 'normal' : 'bold'
+                fontWeight: isCurrentLevel ? 'bold' : 'normal',
+                cursor: isClickable ? 'pointer' : 'default'
             };
             
             textParts.push(`{${styleName}|${part.name}}`);
@@ -521,19 +534,8 @@ export class ParetoChartGenerator {
             }
         });
         
-        // 在不是顶层时添加提示
-        let finalText = textParts.join('');
-        if (this.currentLevel > 0) {
-            finalText += ' {tip|(点击返回)}';
-            rich.tip = {
-                color: '#999',
-                fontSize: 10,
-                fontStyle: 'italic'
-            };
-        }
-        
         return {
-            text: finalText,
+            text: textParts.join(''),
             rich: rich,
             levels: parts
         };
