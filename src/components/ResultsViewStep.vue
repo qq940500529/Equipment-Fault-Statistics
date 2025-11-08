@@ -131,58 +131,6 @@ import {
 import { useDataStore } from '@/stores/dataStore'
 import { useDataExporter } from '@/composables/useDataExporter'
 import { COLUMN_MAPPINGS } from '@/config/constants'
-        </template>
-      </a-table>
-    </div>
-
-    <!-- Actions -->
-    <a-space class="actions" :size="16" direction="vertical">
-      <a-space :size="16">
-        <a-button type="primary" size="large" @click="$emit('next')">
-          <template #icon>
-            <icon-bar-chart />
-          </template>
-          查看帕累托图
-        </a-button>
-      </a-space>
-
-      <a-space :size="16">
-        <a-button type="primary" size="large" status="success" @click="exportExcel">
-          <template #icon>
-            <icon-download />
-          </template>
-          下载Excel文件
-        </a-button>
-        <a-button size="large" status="success" @click="exportCsv">
-          <template #icon>
-            <icon-download />
-          </template>
-          下载CSV文件
-        </a-button>
-        <a-button size="large" @click="exportJson">
-          <template #icon>
-            <icon-download />
-          </template>
-          下载JSON文件
-        </a-button>
-      </a-space>
-
-      <a-button @click="$emit('reset')">
-        <template #icon>
-          <icon-refresh />
-        </template>
-        处理新文件
-      </a-button>
-    </a-space>
-  </a-card>
-</template>
-
-<script setup>
-import { computed } from 'vue'
-import { Message } from '@arco-design/web-vue'
-import { useDataStore } from '@/stores/dataStore'
-import { useDataExporter } from '@/composables/useDataExporter'
-import { COLUMN_MAPPINGS } from '@/config/constants'
 
 const emit = defineEmits(['next', 'reset'])
 
