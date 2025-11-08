@@ -71,7 +71,10 @@ async function handleUpload(options) {
     currentFile.value = file
     
     // Show loading message
-    const loadingMsg = Message.loading('正在读取文件...', { duration: 0 })
+    const loadingMsg = Message.loading({
+      content: '正在读取文件...',
+      duration: 0
+    })
     
     // Read file
     const fileData = await readFile(file)

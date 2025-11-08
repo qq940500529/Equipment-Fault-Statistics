@@ -27,11 +27,15 @@
         </a-statistic>
       </a-col>
       <a-col :span="8">
-        <a-statistic title="工作表" :value="statistics.sheetName" value-from="center">
-          <template #prefix>
-            <icon-list />
-          </template>
-        </a-statistic>
+        <a-card :bordered="false" class="stat-card">
+          <div class="stat-content">
+            <div class="stat-prefix"><icon-list /></div>
+            <div class="stat-info">
+              <div class="stat-title">工作表</div>
+              <div class="stat-value">{{ statistics.sheetName || '-' }}</div>
+            </div>
+          </div>
+        </a-card>
       </a-col>
     </a-row>
 
@@ -81,16 +85,43 @@
 <script setup>
 import { computed } from 'vue'
 import { useDataStore } from '@/stores/dataStore'
-import { useDataParser } from '@/composables/useDataParser'
 
 const emit = defineEmits(['next', 'prev'])
 
 const dataStore = useDataStore()
-const { getPreviewData, getStatistics, getHeaders } = useDataParser()
 
-const statistics = computed(() => getStatistics())
-const previewData = computed(() => getPreviewData(50))
-const headers = computed(() => getHeaders())
+const statistics = computed(() => {
+  if (!dataStore.rawData || !Array.isArray(dataStore.rawData) || dataStore.rawData.length === 0) {
+    return {
+      totalRows: 0,
+      columnCount: 0,
+      sheetName: '-'
+    }
+  }
+  
+  const firstRow = dataStore.rawData[0]
+  const headers = Object.keys(firstRow || {})
+  
+  return {
+    totalRows: dataStore.rawData.length,
+    columnCount: headers.length,
+    sheetName: dataStore.currentFile?.name || '-'
+  }
+})
+
+const previewData = computed(() => {
+  if (!dataStore.rawData || !Array.isArray(dataStore.rawData)) {
+    return []
+  }
+  return dataStore.rawData.slice(0, 50)
+})
+
+const headers = computed(() => {
+  if (!dataStore.rawData || !Array.isArray(dataStore.rawData) || dataStore.rawData.length === 0) {
+    return []
+  }
+  return Object.keys(dataStore.rawData[0] || {})
+})
 
 const columns = computed(() => {
   const cols = [
@@ -145,6 +176,45 @@ const columns = computed(() => {
 .stats-row :deep(.arco-statistic:hover) {
   transform: translateY(-4px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.stat-card {
+  background: linear-gradient(135deg, rgba(var(--arcoblue-1), 0.3) 0%, rgba(var(--purple-1), 0.2) 100%);
+  border-radius: 8px;
+  transition: all 0.3s;
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.stat-content {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem;
+}
+
+.stat-prefix {
+  margin-right: 1rem;
+  font-size: 24px;
+  color: var(--color-primary);
+}
+
+.stat-info {
+  flex: 1;
+}
+
+.stat-title {
+  font-size: 0.875rem;
+  color: var(--color-text-2);
+  margin-bottom: 0.5rem;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-text-1);
 }
 
 .preview-hint {

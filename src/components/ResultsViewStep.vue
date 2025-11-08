@@ -32,20 +32,24 @@
       </a-col>
       <a-col :span="6">
         <a-card :bordered="false" class="stat-card">
-          <a-statistic title="车间列分列" :value="stats?.workshopColumnSplit ? '✓' : '-'">
-            <template #prefix>
-              <icon-apps />
-            </template>
-          </a-statistic>
+          <div class="stat-content">
+            <div class="stat-prefix"><icon-apps /></div>
+            <div class="stat-info">
+              <div class="stat-title">车间列分列</div>
+              <div class="stat-value">{{ stats?.workshopColumnSplit ? '✓' : '-' }}</div>
+            </div>
+          </div>
         </a-card>
       </a-col>
       <a-col :span="6">
         <a-card :bordered="false" class="stat-card">
-          <a-statistic title="维修人分类" :value="stats?.repairPersonClassified ? '✓' : '-'">
-            <template #prefix>
-              <icon-user-group />
-            </template>
-          </a-statistic>
+          <div class="stat-content">
+            <div class="stat-prefix"><icon-user-group /></div>
+            <div class="stat-info">
+              <div class="stat-title">维修人分类</div>
+              <div class="stat-value">{{ stats?.repairPersonClassified ? '✓' : '-' }}</div>
+            </div>
+          </div>
         </a-card>
       </a-col>
     </a-row>
@@ -221,6 +225,34 @@ async function exportJson() {
 
 .stat-card :deep(.arco-statistic-prefix) {
   color: rgb(var(--green-6));
+}
+
+.stat-content {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem;
+}
+
+.stat-prefix {
+  margin-right: 1rem;
+  font-size: 24px;
+  color: var(--color-primary);
+}
+
+.stat-info {
+  flex: 1;
+}
+
+.stat-title {
+  font-size: 0.875rem;
+  color: var(--color-text-2);
+  margin-bottom: 0.5rem;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-text-1);
 }
 
 .success-alert {
