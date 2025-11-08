@@ -58,9 +58,17 @@ export class ParetoChartGenerator {
         
         this.chart = echarts.init(this.chartDom);
         
-        // 添加点击事件处理
+        // 添加点击事件处理 - 柱状图点击钻取
         this.chart.on('click', (params) => {
             this.handleChartClick(params);
+        });
+        
+        // 添加标题点击事件处理 - 面包屑导航
+        this.chart.getZr().on('click', (params) => {
+            const pointInPixel = [params.offsetX, params.offsetY];
+            if (this.chart.containPixel('title', pointInPixel)) {
+                this.handleBreadcrumbClick(params);
+            }
         });
     }
     
@@ -135,7 +143,8 @@ export class ParetoChartGenerator {
         // 保存当前状态到导航栈
         this.navigationStack.push({
             level: this.currentLevel,
-            filters: { ...this.currentFilters }
+            filters: { ...this.currentFilters },
+            value: params.name
         });
         
         // 添加新的筛选条件
@@ -156,6 +165,21 @@ export class ParetoChartGenerator {
         if (this.onStateChange) {
             this.onStateChange();
         }
+    }
+    
+    /**
+     * 处理面包屑点击 - 跳转到指定层级
+     * Simplified implementation: clicking breadcrumb area goes back one level
+     */
+    handleBreadcrumbClick(params) {
+        // 如果在顶层，不处理
+        if (this.currentLevel === 0) {
+            return;
+        }
+        
+        // 简化实现：点击面包屑副标题区域时，返回上一级
+        // 更复杂的实现需要解析点击位置来确定具体点击了哪一级
+        this.goBack();
     }
     
     /**
@@ -318,13 +342,13 @@ export class ParetoChartGenerator {
             return item.index <= paretoResult.top20Index ? '#5470c6' : '#91cc75';
         });
         
-        // 构建面包屑导航文本
-        const breadcrumb = this.getBreadcrumb();
+        // 构建面包屑导航文本（使用rich text支持点击样式）
+        const breadcrumb = this.getBreadcrumbRich();
         
         return {
             title: {
                 text: `${levelInfo.title} - ${metricInfo.name}`,
-                subtext: breadcrumb,
+                subtext: breadcrumb.text,
                 left: 'center',
                 top: 5,
                 textStyle: {
@@ -332,9 +356,15 @@ export class ParetoChartGenerator {
                 },
                 subtextStyle: {
                     fontSize: 11,
-                    color: '#666',
-                    lineHeight: 18
-                }
+                    color: this.currentLevel > 0 ? '#1890ff' : '#666',
+                    lineHeight: 18,
+                    rich: breadcrumb.rich,
+                    // Show pointer cursor when clickable
+                    textBorderColor: 'transparent',
+                    textBorderWidth: 0
+                },
+                // Enable clicking on subtitle for breadcrumb navigation
+                triggerEvent: true
             },
             tooltip: {
                 trigger: 'axis',
@@ -456,6 +486,57 @@ export class ParetoChartGenerator {
             parts.push(value);
         });
         return parts.join(' > ');
+    }
+    
+    /**
+     * 获取带样式的面包屑导航（支持点击）
+     */
+    getBreadcrumbRich() {
+        const parts = [{ name: '全部', level: -1 }];
+        let currentLevel = -1;
+        
+        // 根据导航栈构建面包屑路径
+        this.navigationStack.forEach((item, index) => {
+            parts.push({ name: item.value, level: index });
+        });
+        
+        // 构建rich text配置
+        const rich = {};
+        const textParts = [];
+        
+        parts.forEach((part, index) => {
+            const styleName = `level${index}`;
+            const isClickable = index < parts.length - 1; // 当前层级不可点击
+            
+            rich[styleName] = {
+                color: isClickable ? '#1890ff' : '#666',
+                textDecoration: isClickable ? 'underline' : 'none',
+                fontWeight: isClickable ? 'normal' : 'bold'
+            };
+            
+            textParts.push(`{${styleName}|${part.name}}`);
+            
+            if (index < parts.length - 1) {
+                textParts.push(' > ');
+            }
+        });
+        
+        // 在不是顶层时添加提示
+        let finalText = textParts.join('');
+        if (this.currentLevel > 0) {
+            finalText += ' {tip|(点击返回)}';
+            rich.tip = {
+                color: '#999',
+                fontSize: 10,
+                fontStyle: 'italic'
+            };
+        }
+        
+        return {
+            text: finalText,
+            rich: rich,
+            levels: parts
+        };
     }
     
     /**

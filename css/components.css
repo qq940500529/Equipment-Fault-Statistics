@@ -538,6 +538,12 @@
     cursor: not-allowed;
 }
 
+/* Ensure reset button always has normal opacity */
+#chartResetBtn {
+    opacity: 1 !important;
+    cursor: pointer;
+}
+
 /* Chart legend styles */
 .alert-info ul {
     padding-left: 1.5rem;
