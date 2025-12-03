@@ -125,6 +125,12 @@ class App {
             toggleTop20Btn.addEventListener('click', () => this.handleToggleTop20());
         }
 
+        // 图表导出按钮
+        const chartExportBtn = document.getElementById('chartExportBtn');
+        if (chartExportBtn) {
+            chartExportBtn.addEventListener('click', () => this.handleChartExport());
+        }
+
         // 图表返回按钮
         const chartBackBtn = document.getElementById('chartBackBtn');
         if (chartBackBtn) {
@@ -1101,6 +1107,77 @@ class App {
         }
 
         showSuccess('图表已重置', 2000);
+    }
+
+    /**
+     * 处理图表数据导出
+     * Exports the current chart's filtered data as an Excel file
+     */
+    handleChartExport() {
+        if (!this.paretoChart) {
+            showError('没有可导出的图表数据');
+            return;
+        }
+
+        // Check if XLSX library is available
+        if (typeof XLSX === 'undefined') {
+            showError('Excel导出库未加载，请刷新页面重试');
+            return;
+        }
+
+        try {
+            console.log('导出图表数据...');
+            showInfo('正在生成Excel文件...', 2000);
+
+            // Get current filtered data from chart
+            const chartData = this.paretoChart.getCurrentFilteredData();
+            
+            if (!chartData.data || chartData.data.length === 0) {
+                showError('当前筛选条件下没有数据可导出');
+                return;
+            }
+
+            // Get all column headers (same as main export function)
+            const originalHeaders = this.dataParser.getHeaders();
+            const allHeaders = extractAllColumns(chartData.data, originalHeaders);
+
+            // Prepare export data - ensure all rows have all columns
+            const exportData = chartData.data.map(row => {
+                const newRow = {};
+                allHeaders.forEach(header => {
+                    newRow[header] = row[header] !== undefined ? row[header] : '';
+                });
+                return newRow;
+            });
+
+            // Create workbook
+            const wb = XLSX.utils.book_new();
+
+            // Create worksheet
+            const ws = XLSX.utils.json_to_sheet(exportData, {
+                header: allHeaders,
+                skipHeader: false
+            });
+
+            // Add worksheet to workbook
+            XLSX.utils.book_append_sheet(wb, ws, '图表数据');
+
+            // Generate filename with timestamp and level info
+            const dateStr = generateExportTimestamp();
+            const levelName = chartData.levelName || '全部';
+            const breadcrumb = chartData.breadcrumb ? `_${chartData.breadcrumb.replace(/ > /g, '_').replace(/[/\\:*?"<>|]/g, '')}` : '';
+            const fileName = `设备故障统计_图表数据_${levelName}${breadcrumb}_${dateStr}.xlsx`;
+
+            // Export file
+            XLSX.writeFile(wb, fileName);
+
+            showSuccess(`Excel文件已成功导出: ${fileName} (${chartData.data.length}行)`, 4000);
+            console.log('图表数据导出完成');
+
+        } catch (error) {
+            console.error('图表数据导出错误:', error);
+            showError('图表数据导出失败: ' + error.message);
+        }
     }
 
     /**
