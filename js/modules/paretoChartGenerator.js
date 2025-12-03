@@ -519,8 +519,9 @@ export class ParetoChartGenerator {
      */
     getBreadcrumb() {
         const parts = ['全部'];
-        Object.entries(this.currentFilters).forEach(([field, value]) => {
-            parts.push(value);
+        // Use navigationStack for consistent ordering
+        this.navigationStack.forEach((item) => {
+            parts.push(item.value);
         });
         return parts.join(' > ');
     }
@@ -566,6 +567,41 @@ export class ParetoChartGenerator {
             text: textParts.join(''),
             rich: rich,
             levels: parts
+        };
+    }
+    
+    /**
+     * 获取当前筛选条件下的原始数据
+     * Returns the filtered raw data based on current drill-down filters
+     * @returns {Object} Object containing filtered data and current level info
+     */
+    getCurrentFilteredData() {
+        if (!this.data) {
+            return {
+                data: [],
+                levelName: '',
+                filters: {},
+                breadcrumb: ''
+            };
+        }
+        
+        // Apply all current filters
+        let filteredData = [...this.data];
+        Object.entries(this.currentFilters).forEach(([field, value]) => {
+            filteredData = filteredData.filter(row => {
+                const rowValue = row[field];
+                return rowValue !== null && rowValue !== undefined && String(rowValue).trim() === String(value).trim();
+            });
+        });
+        
+        // Get current level information
+        const currentLevelInfo = this.levels[this.currentLevel];
+        
+        return {
+            data: filteredData,
+            levelName: currentLevelInfo.name,
+            filters: { ...this.currentFilters },
+            breadcrumb: this.getBreadcrumb()
         };
     }
     

@@ -129,3 +129,39 @@ describe('Helper Functions - extractAllColumns', () => {
         expect(workshopIndex).toBeLessThan(areaIndex);
     });
 });
+
+import { sanitizeFilename } from '../../js/utils/helpers.js';
+
+describe('Helper Functions - sanitizeFilename', () => {
+    test('应该移除非法字符', () => {
+        expect(sanitizeFilename('file/name')).toBe('filename');
+        expect(sanitizeFilename('file\\name')).toBe('filename');
+        expect(sanitizeFilename('file:name')).toBe('filename');
+        expect(sanitizeFilename('file*name')).toBe('filename');
+        expect(sanitizeFilename('file?name')).toBe('filename');
+        expect(sanitizeFilename('file"name')).toBe('filename');
+        expect(sanitizeFilename('file<name')).toBe('filename');
+        expect(sanitizeFilename('file>name')).toBe('filename');
+        expect(sanitizeFilename('file|name')).toBe('filename');
+    });
+
+    test('应该移除多个非法字符', () => {
+        expect(sanitizeFilename('file/name:test*doc?.txt')).toBe('filenametestdoc.txt');
+    });
+
+    test('应该保留合法字符', () => {
+        expect(sanitizeFilename('正常的文件名.xlsx')).toBe('正常的文件名.xlsx');
+        expect(sanitizeFilename('file_name-123.txt')).toBe('file_name-123.txt');
+    });
+
+    test('应该处理空值和undefined', () => {
+        expect(sanitizeFilename('')).toBe('');
+        expect(sanitizeFilename(null)).toBe('');
+        expect(sanitizeFilename(undefined)).toBe('');
+    });
+
+    test('应该处理面包屑路径', () => {
+        const breadcrumb = '全部_一车间_设备A';
+        expect(sanitizeFilename(breadcrumb)).toBe('全部_一车间_设备A');
+    });
+});
