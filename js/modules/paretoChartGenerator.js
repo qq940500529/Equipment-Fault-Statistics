@@ -519,8 +519,9 @@ export class ParetoChartGenerator {
      */
     getBreadcrumb() {
         const parts = ['全部'];
-        Object.entries(this.currentFilters).forEach(([field, value]) => {
-            parts.push(value);
+        // Use navigationStack for consistent ordering
+        this.navigationStack.forEach((item) => {
+            parts.push(item.value);
         });
         return parts.join(' > ');
     }

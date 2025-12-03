@@ -553,6 +553,19 @@ export function escapeCsvValue(value) {
     return strValue;
 }
 
+/**
+ * 清理文件名中的非法字符
+ * @param {string} filename - 要清理的文件名
+ * @returns {string} 清理后的文件名
+ */
+export function sanitizeFilename(filename) {
+    if (!filename) {
+        return '';
+    }
+    // Remove characters that are illegal in Windows/Unix filenames
+    return filename.replace(/[/\\:*?"<>|]/g, '');
+}
+
 // 导出所有函数
 export default {
     formatFileSize,
@@ -579,5 +592,6 @@ export default {
     createTable,
     extractAllColumns,
     generateExportTimestamp,
-    escapeCsvValue
+    escapeCsvValue,
+    sanitizeFilename
 };

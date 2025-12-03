@@ -6,7 +6,7 @@
  */
 
 import { APP_CONFIG, TABLE_CONFIG, UI_CONFIG } from './config/constants.js';
-import { showInfo, showSuccess, showError, showWarning, formatFileSize, createTable, clearTable, updateProgress, escapeHtml, extractAllColumns, generateExportTimestamp, escapeCsvValue, showLoadingOverlay, hideLoadingOverlay, delay, showProcessingComplete, showDeletedRowsModal } from './utils/helpers.js';
+import { showInfo, showSuccess, showError, showWarning, formatFileSize, createTable, clearTable, updateProgress, escapeHtml, extractAllColumns, generateExportTimestamp, escapeCsvValue, showLoadingOverlay, hideLoadingOverlay, delay, showProcessingComplete, showDeletedRowsModal, sanitizeFilename } from './utils/helpers.js';
 import { FileUploader } from './modules/fileUploader.js';
 import { DataParser } from './modules/dataParser.js';
 import { DataValidator } from './modules/dataValidator.js';
@@ -1165,8 +1165,8 @@ class App {
             // Generate filename with timestamp and level info
             const dateStr = generateExportTimestamp();
             const levelName = chartData.levelName || '全部';
-            const breadcrumb = chartData.breadcrumb ? `_${chartData.breadcrumb.replace(/ > /g, '_').replace(/[/\\:*?"<>|]/g, '')}` : '';
-            const fileName = `设备故障统计_图表数据_${levelName}${breadcrumb}_${dateStr}.xlsx`;
+            const breadcrumbPath = chartData.breadcrumb ? `_${sanitizeFilename(chartData.breadcrumb.replace(/ > /g, '_'))}` : '';
+            const fileName = `设备故障统计_图表数据_${levelName}${breadcrumbPath}_${dateStr}.xlsx`;
 
             // Export file
             XLSX.writeFile(wb, fileName);
