@@ -2,7 +2,7 @@
  * 主程序入口文件
  * Main Application Entry Point
  * 
- * Equipment Fault Statistics System v0.3.0
+ * Equipment Fault Statistics System v1.0.0
  */
 
 import { APP_CONFIG, TABLE_CONFIG, UI_CONFIG } from './config/constants.js';
@@ -928,80 +928,11 @@ class App {
     }
 
     /**
-     * 处理重置
+     * 处理重置（刷新页面）
      */
     handleReset() {
-        console.log('重置应用程序...');
-        
-        // 清空数据
-        this.rawData = null;
-        this.processedData = null;
-        this.stats = null;
-        this.deletedRows = null;
-        this.currentStep = 1;
-        this.currentFile = null;
-        this.validationResult = null;
-        
-        // 重置模块
-        this.fileUploader.reset();
-        this.dataParser.reset();
-        this.dataValidator.reset();
-        this.dataTransformer.reset();
-        
-        // 重置文件输入
-        const fileInput = document.getElementById('fileInput');
-        if (fileInput) {
-            fileInput.value = '';
-        }
-        
-        // 隐藏文件信息
-        const fileInfo = document.getElementById('fileInfo');
-        if (fileInfo) {
-            fileInfo.style.display = 'none';
-        }
-        
-        // 隐藏统计信息
-        const dataStats = document.getElementById('dataStats');
-        if (dataStats) {
-            dataStats.style.display = 'none';
-        }
-        
-        // 隐藏数据预览
-        const dataPreview = document.getElementById('dataPreview');
-        if (dataPreview) {
-            dataPreview.style.display = 'none';
-        }
-        
-        // 隐藏验证结果
-        const validationResult = document.getElementById('validationResult');
-        if (validationResult) {
-            validationResult.style.display = 'none';
-        }
-        
-        // 隐藏处理统计
-        const processingStats = document.getElementById('processingStats');
-        if (processingStats) {
-            processingStats.style.display = 'none';
-        }
-        
-        // 清空结果表格
-        const resultTableHeader = document.getElementById('resultTableHeader');
-        const resultTableBody = document.getElementById('resultTableBody');
-        if (resultTableHeader) resultTableHeader.innerHTML = '';
-        if (resultTableBody) resultTableBody.innerHTML = '';
-        
-        // 隐藏步骤2-4
-        ['step-2', 'step-3', 'step-4'].forEach(stepId => {
-            const step = document.getElementById(stepId);
-            if (step) {
-                step.style.display = 'none';
-            }
-        });
-        
-        // 重置进度条
-        updateProgress(0, '');
-        
-        showSuccess('已重置，可以处理新文件', 2000);
+        // 刷新页面重新开始
+        window.location.reload();
     }
 
     /**
