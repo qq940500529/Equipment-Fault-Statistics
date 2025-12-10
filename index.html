@@ -169,6 +169,14 @@
                             </svg>
                             查看帕累托图
                         </button>
+                        <button type="button" class="btn btn-info btn-lg me-2" id="viewStaffWorkloadBtn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-people-fill" viewBox="0 0 16 16">
+                                <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+                                <path fill-rule="evenodd" d="M5.216 14A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216z"/>
+                                <path d="M4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"/>
+                            </svg>
+                            查看人员工作量报表
+                        </button>
                     </div>
                     
                     <div class="text-center">
@@ -283,6 +291,69 @@
                     <!-- 返回数据处理结果 -->
                     <div class="text-center mt-3">
                         <button type="button" class="btn btn-outline-primary" id="backToResultsBtn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left-circle" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-4.5-.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5z"/>
+                            </svg>
+                            返回处理结果
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 步骤6: 人员工作量报表 -->
+            <section id="step-6" class="card mb-4" style="display: none;">
+                <div class="card-header">
+                    <h3><span class="badge bg-info">步骤 6</span> 人员工作量统计报表</h3>
+                </div>
+                <div class="card-body">
+                    <!-- 说明 -->
+                    <div class="alert alert-info mb-3">
+                        <strong>报表说明：</strong>
+                        <ul class="mb-0">
+                            <li>统计各维修人员的工作任务总工时及占比</li>
+                            <li>工作任务分类：设备编号以TJA开头为虚拟设备（显示设备名称），其他为"设备维修"</li>
+                            <li>按人员总工时降序排序</li>
+                            <li>条形图按人员总工时降序，每个人员内部按任务工时占比降序</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- 数据表格 -->
+                    <div class="mb-4">
+                        <h5>工作量数据表</h5>
+                        <div class="table-responsive" style="max-height: 400px; overflow: auto;">
+                            <table class="table table-striped table-bordered table-sm table-hover" id="staffWorkloadTable">
+                                <thead class="table-dark sticky-top">
+                                    <tr>
+                                        <th style="width: 100px;">维修人</th>
+                                        <th style="width: 100px;">维修人分类</th>
+                                        <th style="width: 100px;">总工时(h)</th>
+                                        <th style="width: 150px;">工作任务</th>
+                                        <th style="width: 100px;">任务工时(h)</th>
+                                        <th style="width: 100px;">占比(%)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="staffWorkloadTableBody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- 条形图 -->
+                    <div class="mb-3">
+                        <h5>工作量条形图</h5>
+                        <div id="staffWorkloadChartContainer" style="width: 100%; height: 600px;"></div>
+                    </div>
+                    
+                    <!-- 操作按钮 -->
+                    <div class="text-center">
+                        <button type="button" class="btn btn-success btn-lg me-2" id="exportStaffWorkloadBtn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-excel" viewBox="0 0 16 16">
+                                <path d="M5.884 6.68a.5.5 0 1 0-.768.64L7.349 10l-2.233 2.68a.5.5 0 0 0 .768.64L8 10.781l2.116 2.54a.5.5 0 0 0 .768-.641L8.651 10l2.233-2.68a.5.5 0 0 0-.768-.64L8 9.219l-2.116-2.54z"/>
+                                <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z"/>
+                            </svg>
+                            导出报表数据
+                        </button>
+                        <button type="button" class="btn btn-outline-primary btn-lg" id="backToResultsFromStaffBtn">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left-circle" viewBox="0 0 16 16">
                                 <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-4.5-.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5z"/>
                             </svg>

@@ -12,6 +12,7 @@ import { DataParser } from './modules/dataParser.js';
 import { DataValidator } from './modules/dataValidator.js';
 import { DataTransformer } from './modules/dataTransformer.js';
 import { ParetoChartGenerator } from './modules/paretoChartGenerator.js';
+import { StaffWorkloadReportGenerator } from './modules/staffWorkloadReportGenerator.js';
 
 /**
  * 应用程序类
@@ -29,6 +30,7 @@ class App {
         this.dataValidator = new DataValidator();
         this.dataTransformer = new DataTransformer();
         this.paretoChart = null;
+        this.staffWorkloadReport = null;
         this.currentFile = null;
         this.validationResult = null;
     }
@@ -143,10 +145,31 @@ class App {
             chartResetBtn.addEventListener('click', () => this.handleChartReset());
         }
 
+        // 查看人员工作量报表按钮
+        const viewStaffWorkloadBtn = document.getElementById('viewStaffWorkloadBtn');
+        if (viewStaffWorkloadBtn) {
+            viewStaffWorkloadBtn.addEventListener('click', () => this.handleViewStaffWorkload());
+        }
+
+        // 返回结果（从人员工作量报表）
+        const backToResultsFromStaffBtn = document.getElementById('backToResultsFromStaffBtn');
+        if (backToResultsFromStaffBtn) {
+            backToResultsFromStaffBtn.addEventListener('click', () => this.handleBackToResultsFromStaff());
+        }
+
+        // 导出人员工作量报表
+        const exportStaffWorkloadBtn = document.getElementById('exportStaffWorkloadBtn');
+        if (exportStaffWorkloadBtn) {
+            exportStaffWorkloadBtn.addEventListener('click', () => this.handleExportStaffWorkload());
+        }
+
         // 窗口大小改变时调整图表大小
         window.addEventListener('resize', () => {
             if (this.paretoChart) {
                 this.paretoChart.resize();
+            }
+            if (this.staffWorkloadReport) {
+                this.staffWorkloadReport.resize();
             }
         });
     }
@@ -1187,6 +1210,163 @@ class App {
         const chartBackBtn = document.getElementById('chartBackBtn');
         if (chartBackBtn && this.paretoChart) {
             chartBackBtn.disabled = this.paretoChart.navigationStack.length === 0;
+        }
+    }
+
+    /**
+     * 处理查看人员工作量报表
+     */
+    handleViewStaffWorkload() {
+        if (!this.processedData || this.processedData.length === 0) {
+            showError('没有可显示的数据');
+            return;
+        }
+
+        try {
+            // 初始化报表生成器（如果还没有初始化）
+            if (!this.staffWorkloadReport) {
+                this.staffWorkloadReport = new StaffWorkloadReportGenerator('staffWorkloadChartContainer');
+            }
+
+            // 设置数据
+            this.staffWorkloadReport.setData(this.processedData);
+
+            // 显示数据表格
+            this.displayStaffWorkloadTable();
+
+            // 切换到报表步骤
+            this.showStep(6);
+
+            showSuccess('人员工作量报表已加载', 2000);
+        } catch (error) {
+            console.error('显示人员工作量报表错误:', error);
+            showError('显示人员工作量报表失败: ' + error.message);
+        }
+    }
+
+    /**
+     * 显示人员工作量表格
+     */
+    displayStaffWorkloadTable() {
+        if (!this.staffWorkloadReport) {
+            return;
+        }
+
+        const tableBody = document.getElementById('staffWorkloadTableBody');
+        if (!tableBody) {
+            return;
+        }
+
+        // 清空表格
+        tableBody.innerHTML = '';
+
+        // 获取表格数据
+        const tableData = this.staffWorkloadReport.getTableData();
+
+        // 填充表格
+        tableData.forEach((row, index) => {
+            const tr = document.createElement('tr');
+            
+            // 维修人
+            const tdPerson = document.createElement('td');
+            tdPerson.textContent = row['维修人'];
+            if (row['维修人']) {
+                tdPerson.classList.add('fw-bold');
+            }
+            tr.appendChild(tdPerson);
+            
+            // 维修人分类
+            const tdType = document.createElement('td');
+            tdType.textContent = row['维修人分类'];
+            tr.appendChild(tdType);
+            
+            // 总工时
+            const tdTotal = document.createElement('td');
+            tdTotal.textContent = row['总工时'];
+            if (row['总工时']) {
+                tdTotal.classList.add('fw-bold', 'text-primary');
+            }
+            tr.appendChild(tdTotal);
+            
+            // 工作任务
+            const tdTask = document.createElement('td');
+            tdTask.textContent = row['工作任务'];
+            tr.appendChild(tdTask);
+            
+            // 任务工时
+            const tdTaskHours = document.createElement('td');
+            tdTaskHours.textContent = row['任务工时'];
+            tr.appendChild(tdTaskHours);
+            
+            // 占比
+            const tdPercentage = document.createElement('td');
+            tdPercentage.textContent = row['占比(%)'];
+            tr.appendChild(tdPercentage);
+            
+            tableBody.appendChild(tr);
+        });
+    }
+
+    /**
+     * 处理从人员工作量报表返回结果
+     */
+    handleBackToResultsFromStaff() {
+        this.showStep(4);
+    }
+
+    /**
+     * 处理导出人员工作量报表
+     */
+    handleExportStaffWorkload() {
+        if (!this.staffWorkloadReport) {
+            showError('没有可导出的报表数据');
+            return;
+        }
+
+        // Check if XLSX library is available
+        if (typeof XLSX === 'undefined') {
+            showError('Excel导出库未加载，请刷新页面重试');
+            return;
+        }
+
+        try {
+            const tableData = this.staffWorkloadReport.getTableData();
+            
+            if (!tableData || tableData.length === 0) {
+                showError('没有可导出的数据');
+                return;
+            }
+
+            // 创建工作簿
+            const wb = XLSX.utils.book_new();
+
+            // 创建工作表
+            const ws = XLSX.utils.json_to_sheet(tableData);
+
+            // 设置列宽
+            ws['!cols'] = [
+                { wch: 12 },  // 维修人
+                { wch: 12 },  // 维修人分类
+                { wch: 12 },  // 总工时
+                { wch: 20 },  // 工作任务
+                { wch: 12 },  // 任务工时
+                { wch: 12 }   // 占比
+            ];
+
+            // 添加工作表到工作簿
+            XLSX.utils.book_append_sheet(wb, ws, '人员工作量统计');
+
+            // 生成文件名
+            const timestamp = generateExportTimestamp();
+            const filename = sanitizeFilename(`人员工作量统计_${timestamp}.xlsx`);
+
+            // 导出文件
+            XLSX.writeFile(wb, filename);
+
+            showSuccess(`人员工作量报表已导出: ${filename}`, 3000);
+        } catch (error) {
+            console.error('人员工作量报表导出错误:', error);
+            showError('人员工作量报表导出失败: ' + error.message);
         }
     }
 }
