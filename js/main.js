@@ -1328,7 +1328,7 @@ class App {
             return;
         }
 
-        // Check if XLSX library is available
+        // Check if XLSX library is available (required for Excel export functionality)
         if (typeof XLSX === 'undefined') {
             showError('Excel导出库未加载，请刷新页面重试');
             return;

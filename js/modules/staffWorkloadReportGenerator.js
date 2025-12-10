@@ -300,7 +300,7 @@ export class StaffWorkloadReportGenerator {
         this.chart.setOption(option, true);
         
         // Adjust chart size after rendering to ensure proper display
-        // Using requestAnimationFrame ensures resize happens after the next browser repaint
+        // Using requestAnimationFrame ensures resize happens after the next browser paint cycle
         requestAnimationFrame(() => {
             if (this.chart) {
                 this.chart.resize();

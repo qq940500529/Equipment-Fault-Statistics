@@ -301,7 +301,7 @@ export class ParetoChartGenerator {
         // 应用筛选条件
         let filteredData = [...this.data]; // Create a copy to avoid mutation
         
-        // Filter out virtual equipment (设备编号 starting with "TJA")
+        // Filter out virtual equipment (设备编号 starting with "TJA") - these represent non-repair daily work tracking devices
         const beforeVirtualFilter = filteredData.length;
         filteredData = filteredData.filter(row => {
             const deviceNumber = row['设备编号'];
