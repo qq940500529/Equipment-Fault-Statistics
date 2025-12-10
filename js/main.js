@@ -2,7 +2,7 @@
  * 主程序入口文件
  * Main Application Entry Point
  * 
- * Equipment Fault Statistics System v0.3.0
+ * Equipment Fault Statistics System v1.0.0
  */
 
 import { APP_CONFIG, TABLE_CONFIG, UI_CONFIG } from './config/constants.js';
@@ -1001,7 +1001,7 @@ class App {
         // 重置进度条
         updateProgress(0, '');
         
-        showSuccess('已重置，可以处理新文件', 2000);
+        showSuccess('已重置，可以重新开始', 2000);
     }
 
     /**

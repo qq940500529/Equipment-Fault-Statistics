@@ -107,7 +107,7 @@ export const STATUS_MESSAGES = {
 
 // 应用配置
 export const APP_CONFIG = {
-    VERSION: '0.3.0',
+    VERSION: '1.0.0',
     APP_NAME: '设备故障统计数据处理系统',
     APP_NAME_EN: 'Equipment Fault Statistics System',
     GITHUB_REPO: 'https://github.com/qq940500529/Equipment-Fault-Statistics'
