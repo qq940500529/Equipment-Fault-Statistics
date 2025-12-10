@@ -299,17 +299,13 @@ export class StaffWorkloadReportGenerator {
         // 渲染图表
         this.chart.setOption(option, true);
         
-        // 调整图表大小
+        // Adjust chart size after rendering to ensure proper display
+        // Using requestAnimationFrame ensures resize happens after the next browser repaint
         requestAnimationFrame(() => {
             if (this.chart) {
                 this.chart.resize();
             }
         });
-        setTimeout(() => {
-            if (this.chart) {
-                this.chart.resize();
-            }
-        }, 150);
         
         console.log('员工工作量条形图渲染完成');
     }

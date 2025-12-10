@@ -439,7 +439,7 @@ class App {
         this.currentStep = step;
         
         // 隐藏所有步骤
-        for (let i = 1; i <= 5; i++) {
+        for (let i = 1; i <= 6; i++) {
             const stepElement = document.getElementById(`step-${i}`);
             if (stepElement && i !== step) {
                 stepElement.style.display = 'none';
@@ -454,14 +454,19 @@ class App {
             stepElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
         
-        // FIX #1: 如果是图表步骤，在显示后调整图表大小并更新返回按钮状态
-        // This fixes the width issue by resizing after the container is visible
+        // 如果是图表步骤，在显示后调整图表大小并更新返回按钮状态
         if (step === 5) {
             setTimeout(() => {
                 if (this.paretoChart) {
                     this.paretoChart.resize();
                 }
                 this.updateChartBackButton();
+            }, 300); // Wait for CSS transitions to complete
+        } else if (step === 6) {
+            setTimeout(() => {
+                if (this.staffWorkloadReport) {
+                    this.staffWorkloadReport.resize();
+                }
             }, 300); // Wait for CSS transitions to complete
         }
     }
