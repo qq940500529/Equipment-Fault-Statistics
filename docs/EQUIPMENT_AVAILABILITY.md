@@ -2,9 +2,9 @@
 
 ## 功能概述 (Overview)
 
-设备妥善率计算功能用于根据设备台账和故障信息，计算各车间和总体的设备妥善率。
+设备妥善率计算功能用于根据设备台账和故障信息，计算各车间和总体的设备妥善率。此功能已集成到主数据处理流程中，在Step 1上传文件，在Step 4自动显示计算结果。
 
-The equipment availability rate calculation feature calculates the availability rate for each workshop and overall based on equipment ledger and fault information.
+The equipment availability rate calculation feature calculates the availability rate for each workshop and overall based on equipment ledger and fault information. This feature is integrated into the main data processing workflow, with file upload in Step 1 and automatic display of results in Step 4.
 
 ## 计算公式 (Formula)
 
@@ -21,13 +21,24 @@ Availability Rate = (1 - (Total Fault Time / (Total Equipment Count × Month Tim
 
 ### 1. 在浏览器中使用 (Browser Usage)
 
-1. 打开应用程序 (Open the application)
-2. 完成数据处理后，点击 "计算设备妥善率" 按钮 (After data processing, click "Calculate Equipment Availability Rate" button)
-3. 上传设备台账文件 (例如: `设备台账.xlsx`) (Upload equipment ledger file, e.g., `设备台账.xlsx`)
-4. 上传故障信息文件 (例如: `12月设备故障信息.xlsx`) (Upload fault information file, e.g., `12月设备故障信息.xlsx`)
-5. 点击 "开始计算妥善率" 按钮 (Click "Start Calculating Availability Rate" button)
-6. 查看结果和图表 (View results and charts)
-7. 可选: 导出妥善率数据为Excel文件 (Optional: Export availability rate data as Excel file)
+**新的工作流程：**
+
+1. **Step 1 - 文件上传** (File Upload)
+   - 上传设备故障信息文件 (必需) (Upload fault information file - Required)
+   - 文件读取成功后，系统返回Step 1并显示"继续处理数据"按钮
+   - 可选择上传设备台账文件 (Upload equipment ledger file - Optional for availability calculation)
+   - 点击"继续处理数据"按钮进入Step 2
+
+2. **Step 2-3 - 数据预览与处理** (Data Preview & Processing)
+   - 预览原始数据
+   - 执行数据处理和转换
+
+3. **Step 4 - 查看结果** (View Results)
+   - 查看处理后的故障数据表格
+   - 如果上传了设备台账，自动显示妥善率统计区域：
+     - 总体统计（设备总数、故障时间总和、总体妥善率）
+     - 车间妥善率详情表格（排名、车间名称、设备数量、故障时间、妥善率）
+   - 可导出妥善率数据为Excel文件
 
 ### 2. 在代码中使用 (Code Usage)
 
@@ -111,10 +122,17 @@ node tests/manual/testWithRealData.js
 - 故障时间 (Fault Time in hours)
 - 妥善率 (Availability Rate in %)
 
-### 3. 可视化图表 (Visualization Chart)
-- 按妥善率排序的条形图 (Bar chart sorted by availability rate)
-- 颜色编码: 红色(<95%), 黄色(95%-99%), 蓝色(≥99%)
-- (Color coded: Red(<95%), Yellow(95%-99%), Blue(≥99%))
+### 3. 可视化展示 (Visualization)
+
+**注意：** 车间妥善率可视化图表已移除，仅保留表格展示。
+
+**Note:** Workshop availability rate visualization chart has been removed, only table display remains.
+
+### 4. 数据导出 (Data Export)
+
+在Step 4的妥善率统计区域，点击"导出妥善率数据"按钮可将结果导出为Excel文件，包含：
+- 总体统计工作表
+- 车间妥善率详情工作表
 
 ## 示例输出 (Example Output)
 
@@ -125,9 +143,9 @@ node tests/manual/testWithRealData.js
 总体设备妥善率: 98.67%
 
 === 车间妥善率 (前3名) ===
-1. TPM七车间: 99.72%
-2. TPM二车间: 99.76%
-3. TPM三车间: 99.53%
+1. TPM七车间: 99.72% (353台设备, 702.78小时故障时间)
+2. TPM二车间: 99.76% (285台设备, 493.20小时故障时间)
+3. TPM三车间: 99.53% (198台设备, 670.68小时故障时间)
 ```
 
 ## API 参考 (API Reference)
