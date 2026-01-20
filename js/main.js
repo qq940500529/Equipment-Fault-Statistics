@@ -1426,7 +1426,6 @@ class App {
             availabilitySection.style.display = 'block';
         }
     }
-    }
 
     /**
      * 显示车间妥善率表格
