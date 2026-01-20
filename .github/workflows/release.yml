@@ -254,7 +254,7 @@ jobs:
           echo "✅ Release created successfully!"
           echo ""
           echo "🎉 Release URL:"
-          gh release view "$TAG" --web
+          echo "https://github.com/${{ github.repository }}/releases/tag/$TAG"
 
       - name: Summary
         run: |
