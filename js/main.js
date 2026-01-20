@@ -493,7 +493,7 @@ class App {
         this.currentStep = step;
         
         // 隐藏所有步骤
-        for (let i = 1; i <= 6; i++) {
+        for (let i = 1; i <= 7; i++) {
             const stepElement = document.getElementById(`step-${i}`);
             if (stepElement && i !== step) {
                 stepElement.style.display = 'none';
@@ -520,6 +520,12 @@ class App {
             setTimeout(() => {
                 if (this.staffWorkloadReport) {
                     this.staffWorkloadReport.resize();
+                }
+            }, 300); // Wait for CSS transitions to complete
+        } else if (step === 7) {
+            setTimeout(() => {
+                if (this.availabilityChart) {
+                    this.availabilityChart.resize();
                 }
             }, 300); // Wait for CSS transitions to complete
         }

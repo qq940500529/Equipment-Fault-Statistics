@@ -154,12 +154,12 @@ export class EquipmentAvailabilityCalculator {
         }
 
         // 如果没有找到标准车间名，检查其他模式
-        if (parts.length >= 1) {
-            // 如果第一部分是"TPM天津工厂"，返回第二部分
-            if (parts[0].trim() === 'TPM天津工厂' && parts.length > 1) {
-                return parts[1].trim();
-            }
-            // 否则返回第一部分
+        // 如果第一部分是"TPM天津工厂"，返回第二部分
+        if (parts[0]?.trim() === 'TPM天津工厂' && parts.length > 1) {
+            return parts[1].trim();
+        }
+        // 否则返回第一部分
+        if (parts.length > 0) {
             return parts[0].trim();
         }
 
