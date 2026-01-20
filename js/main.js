@@ -13,6 +13,7 @@ import { DataValidator } from './modules/dataValidator.js';
 import { DataTransformer } from './modules/dataTransformer.js';
 import { ParetoChartGenerator } from './modules/paretoChartGenerator.js';
 import { StaffWorkloadReportGenerator } from './modules/staffWorkloadReportGenerator.js';
+import { EquipmentAvailabilityCalculator } from './modules/equipmentAvailabilityCalculator.js';
 
 /**
  * 应用程序类
@@ -31,6 +32,9 @@ class App {
         this.dataTransformer = new DataTransformer();
         this.paretoChart = null;
         this.staffWorkloadReport = null;
+        this.equipmentAvailabilityCalculator = new EquipmentAvailabilityCalculator();
+        this.equipmentLedgerData = null;
+        this.availabilityReport = null;
         this.currentFile = null;
         this.validationResult = null;
     }
@@ -73,6 +77,12 @@ class App {
         const fileInput = document.getElementById('fileInput');
         if (fileInput) {
             fileInput.addEventListener('change', (e) => this.handleFileSelect(e));
+        }
+
+        // 继续处理按钮
+        const continueToPreviewBtn = document.getElementById('continueToPreviewBtn');
+        if (continueToPreviewBtn) {
+            continueToPreviewBtn.addEventListener('click', () => this.handleContinueToPreview());
         }
 
         // 处理按钮
@@ -163,6 +173,24 @@ class App {
             exportStaffWorkloadBtn.addEventListener('click', () => this.handleExportStaffWorkload());
         }
 
+        // 设备台账上传按钮
+        const selectEquipmentLedgerBtn = document.getElementById('selectEquipmentLedgerBtn');
+        if (selectEquipmentLedgerBtn) {
+            selectEquipmentLedgerBtn.addEventListener('click', () => {
+                document.getElementById('equipmentLedgerInput').click();
+            });
+        }
+
+        const equipmentLedgerInput = document.getElementById('equipmentLedgerInput');
+        if (equipmentLedgerInput) {
+            equipmentLedgerInput.addEventListener('change', (e) => this.handleEquipmentLedgerSelect(e));
+        }
+
+        const exportAvailabilityBtn = document.getElementById('exportAvailabilityBtn');
+        if (exportAvailabilityBtn) {
+            exportAvailabilityBtn.addEventListener('click', () => this.handleExportAvailability());
+        }
+
         // 窗口大小改变时调整图表大小
         window.addEventListener('resize', () => {
             if (this.paretoChart) {
@@ -178,12 +206,30 @@ class App {
      * 设置拖拽上传
      */
     setupDragAndDrop() {
+        // 设置故障信息文件拖拽上传
         const uploadArea = document.getElementById('uploadArea');
-        if (!uploadArea) return;
+        if (uploadArea) {
+            this.setupDragArea(uploadArea, (files) => {
+                this.handleFileSelect({ target: { files: files } });
+            });
+        }
 
+        // 设置设备台账文件拖拽上传
+        const equipmentLedgerUploadArea = document.getElementById('equipmentLedgerUploadArea');
+        if (equipmentLedgerUploadArea) {
+            this.setupDragArea(equipmentLedgerUploadArea, (files) => {
+                this.handleEquipmentLedgerSelect({ target: { files: files } });
+            });
+        }
+    }
+
+    /**
+     * 设置单个拖拽区域
+     */
+    setupDragArea(area, onDrop) {
         // 阻止默认拖拽行为
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            uploadArea.addEventListener(eventName, (e) => {
+            area.addEventListener(eventName, (e) => {
                 e.preventDefault();
                 e.stopPropagation();
             });
@@ -191,23 +237,23 @@ class App {
 
         // 拖拽进入
         ['dragenter', 'dragover'].forEach(eventName => {
-            uploadArea.addEventListener(eventName, () => {
-                uploadArea.classList.add('drag-over');
+            area.addEventListener(eventName, () => {
+                area.classList.add('drag-over');
             });
         });
 
         // 拖拽离开
         ['dragleave', 'drop'].forEach(eventName => {
-            uploadArea.addEventListener(eventName, () => {
-                uploadArea.classList.remove('drag-over');
+            area.addEventListener(eventName, () => {
+                area.classList.remove('drag-over');
             });
         });
 
         // 文件拖放
-        uploadArea.addEventListener('drop', (e) => {
+        area.addEventListener('drop', (e) => {
             const files = e.dataTransfer.files;
             if (files.length > 0) {
-                this.handleFileSelect({ target: { files: files } });
+                onDrop(files);
             }
         });
     }
@@ -271,25 +317,45 @@ class App {
             // 短暂延迟以显示完成状态
             await delay(UI_CONFIG.COMPLETION_DELAY_MS);
             
-            // 隐藏步骤3，显示第二步
+            // 隐藏步骤3，返回步骤1
             const step3 = document.getElementById('step-3');
             if (step3) {
                 step3.style.display = 'none';
             }
-            this.showStep(2);
+            this.showStep(1);
             
-            showSuccess(`文件读取成功！共 ${parseResult.rowCount} 行数据`, 3000);
+            // 显示继续按钮
+            const continueButtonContainer = document.getElementById('continueButtonContainer');
+            if (continueButtonContainer) {
+                continueButtonContainer.style.display = 'block';
+            }
+            
+            showSuccess(`文件读取成功！共 ${parseResult.rowCount} 行数据。您可以继续上传设备台账或点击"继续处理数据"`, 4000);
             
         } catch (error) {
             console.error('文件处理错误:', error);
             showError('文件处理失败: ' + error.message);
             updateProgress(0, '');
-            // 隐藏步骤3
+            // 隐藏步骤3，返回步骤1
             const step3 = document.getElementById('step-3');
             if (step3) {
                 step3.style.display = 'none';
             }
+            this.showStep(1);
         }
+    }
+
+    /**
+     * 处理继续到数据预览
+     */
+    handleContinueToPreview() {
+        if (!this.rawData || this.rawData.length === 0) {
+            showError('请先上传设备故障信息文件');
+            return;
+        }
+        
+        // 显示第二步（数据预览）
+        this.showStep(2);
     }
 
     /**
@@ -746,6 +812,13 @@ class App {
         
         // 显示第四步
         this.showStep(4);
+        
+        // 如果设备台账已上传，自动计算设备妥善率
+        if (this.equipmentLedgerData && this.processedData) {
+            setTimeout(() => {
+                this.calculateAndDisplayAvailability();
+            }, 500);
+        }
     }
 
     /**
@@ -1303,6 +1376,182 @@ class App {
         } catch (error) {
             console.error('人员工作量报表导出错误:', error);
             showError('人员工作量报表导出失败: ' + error.message);
+        }
+    }
+
+    /**
+     * 处理设备台账文件选择
+     */
+    async handleEquipmentLedgerSelect(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        try {
+            showLoadingOverlay('正在读取设备台账文件...');
+            
+            // 读取文件
+            const data = await this.fileUploader.readFile(file);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+            this.equipmentLedgerData = XLSX.utils.sheet_to_json(worksheet);
+
+            // 显示文件信息
+            document.getElementById('equipmentLedgerFileName').textContent = file.name;
+            document.getElementById('equipmentLedgerInfo').style.display = 'block';
+
+            showSuccess(`设备台账文件加载成功: ${this.equipmentLedgerData.length} 条记录`, 2000);
+        } catch (error) {
+            showError('设备台账文件读取失败: ' + error.message);
+        } finally {
+            hideLoadingOverlay();
+        }
+    }
+
+    /**
+     * 计算并显示设备妥善率
+     */
+    async calculateAndDisplayAvailability() {
+        if (!this.equipmentLedgerData || !this.processedData) {
+            return;
+        }
+
+        try {
+            // 生成报告（使用处理后的故障信息数据）
+            this.availabilityReport = this.equipmentAvailabilityCalculator.generateReport(
+                this.equipmentLedgerData,
+                this.processedData
+            );
+
+            // 显示结果
+            this.displayAvailabilityResults();
+
+            showSuccess('设备妥善率计算完成!', 2000);
+        } catch (error) {
+            console.error('设备妥善率计算错误:', error);
+            // 不显示错误，只是不显示妥善率部分
+        }
+    }
+
+    /**
+     * 显示设备妥善率计算结果
+     */
+    displayAvailabilityResults() {
+        const report = this.availabilityReport;
+        
+        // 显示总体统计
+        document.getElementById('totalEquipmentCount').textContent = report.overall.totalEquipment;
+        document.getElementById('totalFaultTimeHours').textContent = report.overall.totalFaultTimeHours.toFixed(2);
+        document.getElementById('overallAvailabilityRate').textContent = report.overall.availabilityRate.toFixed(2) + '%';
+
+        // 显示车间妥善率表格
+        this.displayAvailabilityTable(report.workshops);
+
+        // 显示结果区域 (Step 4中的availabilitySection)
+        const availabilitySection = document.getElementById('availabilitySection');
+        if (availabilitySection) {
+            availabilitySection.style.display = 'block';
+        }
+    }
+
+    /**
+     * 显示车间妥善率表格
+     */
+    displayAvailabilityTable(workshops) {
+        const tableBody = document.getElementById('availabilityTableBody');
+        tableBody.innerHTML = '';
+
+        // 按妥善率从低到高排序（已经排好序了）
+        workshops.forEach((workshop, index) => {
+            const tr = document.createElement('tr');
+
+            // 根据妥善率设置行颜色
+            if (workshop.availabilityRate < 95) {
+                tr.classList.add('table-danger');
+            } else if (workshop.availabilityRate < 99) {
+                tr.classList.add('table-warning');
+            } else {
+                tr.classList.add('table-success');
+            }
+
+            // 排名
+            const tdRank = document.createElement('td');
+            tdRank.textContent = index + 1;
+            tr.appendChild(tdRank);
+
+            // 车间名称
+            const tdWorkshop = document.createElement('td');
+            tdWorkshop.textContent = workshop.workshop;
+            tr.appendChild(tdWorkshop);
+
+            // 设备数量
+            const tdEquipment = document.createElement('td');
+            tdEquipment.textContent = workshop.equipmentCount;
+            tr.appendChild(tdEquipment);
+
+            // 故障时间
+            const tdFaultTime = document.createElement('td');
+            tdFaultTime.textContent = workshop.faultTimeHours.toFixed(2);
+            tr.appendChild(tdFaultTime);
+
+            // 妥善率
+            const tdRate = document.createElement('td');
+            tdRate.textContent = workshop.availabilityRate.toFixed(2) + '%';
+            tdRate.style.fontWeight = 'bold';
+            tr.appendChild(tdRate);
+
+            tableBody.appendChild(tr);
+        });
+    }
+
+    /**
+     * 处理导出妥善率数据
+     */
+    handleExportAvailability() {
+        if (!this.availabilityReport) {
+            showError('没有可导出的妥善率数据');
+            return;
+        }
+
+        if (typeof XLSX === 'undefined') {
+            showError('Excel导出库未加载，请刷新页面重试');
+            return;
+        }
+
+        try {
+            const wb = XLSX.utils.book_new();
+
+            // 总体统计数据
+            const overallData = [
+                { '项目': '设备总数', '值': this.availabilityReport.overall.totalEquipment, '单位': '台' },
+                { '项目': '故障时间总和', '值': this.availabilityReport.overall.totalFaultTimeHours, '单位': '小时' },
+                { '项目': '总体设备妥善率', '值': this.availabilityReport.overall.availabilityRate, '单位': '%' },
+                { '项目': '月时间', '值': this.availabilityReport.metadata.monthHours, '单位': '小时' }
+            ];
+            const overallWs = XLSX.utils.json_to_sheet(overallData);
+            XLSX.utils.book_append_sheet(wb, overallWs, '总体统计');
+
+            // 车间详情数据
+            const workshopData = this.availabilityReport.workshops.map((w, index) => ({
+                '排名': index + 1,
+                '车间名称': w.workshop,
+                '设备数量': w.equipmentCount,
+                '故障时间(小时)': w.faultTimeHours,
+                '妥善率(%)': w.availabilityRate
+            }));
+            const workshopWs = XLSX.utils.json_to_sheet(workshopData);
+            XLSX.utils.book_append_sheet(wb, workshopWs, '车间妥善率详情');
+
+            // 生成文件名
+            const timestamp = generateExportTimestamp();
+            const filename = sanitizeFilename(`设备妥善率统计_${timestamp}.xlsx`);
+
+            // 导出文件
+            XLSX.writeFile(wb, filename);
+
+            showSuccess(`妥善率数据已导出: ${filename}`, 3000);
+        } catch (error) {
+            console.error('妥善率数据导出错误:', error);
+            showError('妥善率数据导出失败: ' + error.message);
         }
     }
 }
