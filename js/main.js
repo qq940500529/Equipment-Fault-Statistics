@@ -79,6 +79,12 @@ class App {
             fileInput.addEventListener('change', (e) => this.handleFileSelect(e));
         }
 
+        // 继续处理按钮
+        const continueToPreviewBtn = document.getElementById('continueToPreviewBtn');
+        if (continueToPreviewBtn) {
+            continueToPreviewBtn.addEventListener('click', () => this.handleContinueToPreview());
+        }
+
         // 处理按钮
         const processBtn = document.getElementById('processBtn');
         if (processBtn) {
@@ -311,25 +317,45 @@ class App {
             // 短暂延迟以显示完成状态
             await delay(UI_CONFIG.COMPLETION_DELAY_MS);
             
-            // 隐藏步骤3，显示第二步
+            // 隐藏步骤3，返回步骤1
             const step3 = document.getElementById('step-3');
             if (step3) {
                 step3.style.display = 'none';
             }
-            this.showStep(2);
+            this.showStep(1);
             
-            showSuccess(`文件读取成功！共 ${parseResult.rowCount} 行数据`, 3000);
+            // 显示继续按钮
+            const continueButtonContainer = document.getElementById('continueButtonContainer');
+            if (continueButtonContainer) {
+                continueButtonContainer.style.display = 'block';
+            }
+            
+            showSuccess(`文件读取成功！共 ${parseResult.rowCount} 行数据。您可以继续上传设备台账或点击"继续处理数据"`, 4000);
             
         } catch (error) {
             console.error('文件处理错误:', error);
             showError('文件处理失败: ' + error.message);
             updateProgress(0, '');
-            // 隐藏步骤3
+            // 隐藏步骤3，返回步骤1
             const step3 = document.getElementById('step-3');
             if (step3) {
                 step3.style.display = 'none';
             }
+            this.showStep(1);
         }
+    }
+
+    /**
+     * 处理继续到数据预览
+     */
+    handleContinueToPreview() {
+        if (!this.rawData || this.rawData.length === 0) {
+            showError('请先上传设备故障信息文件');
+            return;
+        }
+        
+        // 显示第二步（数据预览）
+        this.showStep(2);
     }
 
     /**
