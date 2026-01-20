@@ -13,6 +13,7 @@ import { DataValidator } from './modules/dataValidator.js';
 import { DataTransformer } from './modules/dataTransformer.js';
 import { ParetoChartGenerator } from './modules/paretoChartGenerator.js';
 import { StaffWorkloadReportGenerator } from './modules/staffWorkloadReportGenerator.js';
+import { EquipmentAvailabilityCalculator } from './modules/equipmentAvailabilityCalculator.js';
 
 /**
  * 应用程序类
@@ -31,6 +32,10 @@ class App {
         this.dataTransformer = new DataTransformer();
         this.paretoChart = null;
         this.staffWorkloadReport = null;
+        this.equipmentAvailabilityCalculator = new EquipmentAvailabilityCalculator();
+        this.equipmentLedgerData = null;
+        this.faultInfoData = null;
+        this.availabilityReport = null;
         this.currentFile = null;
         this.validationResult = null;
     }
@@ -163,6 +168,52 @@ class App {
             exportStaffWorkloadBtn.addEventListener('click', () => this.handleExportStaffWorkload());
         }
 
+        // 查看设备妥善率按钮
+        const viewAvailabilityBtn = document.getElementById('viewAvailabilityBtn');
+        if (viewAvailabilityBtn) {
+            viewAvailabilityBtn.addEventListener('click', () => this.handleViewAvailability());
+        }
+
+        // 设备妥善率计算相关按钮
+        const selectEquipmentLedgerBtn = document.getElementById('selectEquipmentLedgerBtn');
+        if (selectEquipmentLedgerBtn) {
+            selectEquipmentLedgerBtn.addEventListener('click', () => {
+                document.getElementById('equipmentLedgerInput').click();
+            });
+        }
+
+        const equipmentLedgerInput = document.getElementById('equipmentLedgerInput');
+        if (equipmentLedgerInput) {
+            equipmentLedgerInput.addEventListener('change', (e) => this.handleEquipmentLedgerSelect(e));
+        }
+
+        const selectFaultInfoBtn = document.getElementById('selectFaultInfoBtn');
+        if (selectFaultInfoBtn) {
+            selectFaultInfoBtn.addEventListener('click', () => {
+                document.getElementById('faultInfoInput').click();
+            });
+        }
+
+        const faultInfoInput = document.getElementById('faultInfoInput');
+        if (faultInfoInput) {
+            faultInfoInput.addEventListener('change', (e) => this.handleFaultInfoSelect(e));
+        }
+
+        const calculateAvailabilityBtn = document.getElementById('calculateAvailabilityBtn');
+        if (calculateAvailabilityBtn) {
+            calculateAvailabilityBtn.addEventListener('click', () => this.handleCalculateAvailability());
+        }
+
+        const exportAvailabilityBtn = document.getElementById('exportAvailabilityBtn');
+        if (exportAvailabilityBtn) {
+            exportAvailabilityBtn.addEventListener('click', () => this.handleExportAvailability());
+        }
+
+        const backFromAvailabilityBtn = document.getElementById('backFromAvailabilityBtn');
+        if (backFromAvailabilityBtn) {
+            backFromAvailabilityBtn.addEventListener('click', () => this.handleBackFromAvailability());
+        }
+
         // 窗口大小改变时调整图表大小
         window.addEventListener('resize', () => {
             if (this.paretoChart) {
@@ -170,6 +221,9 @@ class App {
             }
             if (this.staffWorkloadReport) {
                 this.staffWorkloadReport.resize();
+            }
+            if (this.availabilityChart) {
+                this.availabilityChart.resize();
             }
         });
     }
@@ -1181,6 +1235,14 @@ class App {
     }
 
     /**
+     * 处理查看设备妥善率
+     */
+    handleViewAvailability() {
+        this.showStep(7);
+        showInfo('请上传设备台账和故障信息文件开始计算', 3000);
+    }
+
+    /**
      * 显示人员工作量表格
      */
     displayStaffWorkloadTable() {
@@ -1304,6 +1366,328 @@ class App {
             console.error('人员工作量报表导出错误:', error);
             showError('人员工作量报表导出失败: ' + error.message);
         }
+    }
+
+    /**
+     * 处理设备台账文件选择
+     */
+    async handleEquipmentLedgerSelect(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        try {
+            showLoadingOverlay('正在读取设备台账文件...');
+            
+            // 读取文件
+            const data = await this.fileUploader.readFile(file);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+            this.equipmentLedgerData = XLSX.utils.sheet_to_json(worksheet);
+
+            // 显示文件信息
+            document.getElementById('equipmentLedgerFileName').textContent = file.name;
+            document.getElementById('equipmentLedgerInfo').style.display = 'block';
+
+            showSuccess(`设备台账文件加载成功: ${this.equipmentLedgerData.length} 条记录`, 2000);
+
+            // 检查是否两个文件都已选择
+            this.checkAvailabilityFilesReady();
+        } catch (error) {
+            showError('设备台账文件读取失败: ' + error.message);
+        } finally {
+            hideLoadingOverlay();
+        }
+    }
+
+    /**
+     * 处理故障信息文件选择
+     */
+    async handleFaultInfoSelect(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        try {
+            showLoadingOverlay('正在读取故障信息文件...');
+            
+            // 读取文件
+            const data = await this.fileUploader.readFile(file);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+            this.faultInfoData = XLSX.utils.sheet_to_json(worksheet);
+
+            // 显示文件信息
+            document.getElementById('faultInfoFileName').textContent = file.name;
+            document.getElementById('faultInfoInfo').style.display = 'block';
+
+            showSuccess(`故障信息文件加载成功: ${this.faultInfoData.length} 条记录`, 2000);
+
+            // 检查是否两个文件都已选择
+            this.checkAvailabilityFilesReady();
+        } catch (error) {
+            showError('故障信息文件读取失败: ' + error.message);
+        } finally {
+            hideLoadingOverlay();
+        }
+    }
+
+    /**
+     * 检查设备妥善率计算所需文件是否都已准备好
+     */
+    checkAvailabilityFilesReady() {
+        const calculateBtn = document.getElementById('calculateAvailabilityBtn');
+        if (this.equipmentLedgerData && this.faultInfoData && calculateBtn) {
+            calculateBtn.disabled = false;
+        }
+    }
+
+    /**
+     * 处理计算设备妥善率
+     */
+    async handleCalculateAvailability() {
+        if (!this.equipmentLedgerData || !this.faultInfoData) {
+            showError('请先上传设备台账和故障信息文件');
+            return;
+        }
+
+        try {
+            showLoadingOverlay('正在计算设备妥善率...');
+
+            // 生成报告
+            this.availabilityReport = this.equipmentAvailabilityCalculator.generateReport(
+                this.equipmentLedgerData,
+                this.faultInfoData
+            );
+
+            // 显示结果
+            this.displayAvailabilityResults();
+
+            showSuccess('设备妥善率计算完成!', 2000);
+        } catch (error) {
+            console.error('设备妥善率计算错误:', error);
+            showError('设备妥善率计算失败: ' + error.message);
+        } finally {
+            hideLoadingOverlay();
+        }
+    }
+
+    /**
+     * 显示设备妥善率计算结果
+     */
+    displayAvailabilityResults() {
+        const report = this.availabilityReport;
+        
+        // 显示总体统计
+        document.getElementById('totalEquipmentCount').textContent = report.overall.totalEquipment;
+        document.getElementById('totalFaultTimeHours').textContent = report.overall.totalFaultTimeHours.toFixed(2);
+        document.getElementById('overallAvailabilityRate').textContent = report.overall.availabilityRate.toFixed(2) + '%';
+
+        // 显示车间妥善率表格
+        this.displayAvailabilityTable(report.workshops);
+
+        // 显示车间妥善率图表
+        this.displayAvailabilityChart(report.workshops);
+
+        // 显示结果区域
+        document.getElementById('availabilityResults').style.display = 'block';
+
+        // 滚动到结果区域
+        document.getElementById('availabilityResults').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    /**
+     * 显示车间妥善率表格
+     */
+    displayAvailabilityTable(workshops) {
+        const tableBody = document.getElementById('availabilityTableBody');
+        tableBody.innerHTML = '';
+
+        // 按妥善率从低到高排序（已经排好序了）
+        workshops.forEach((workshop, index) => {
+            const tr = document.createElement('tr');
+
+            // 根据妥善率设置行颜色
+            if (workshop.availabilityRate < 95) {
+                tr.classList.add('table-danger');
+            } else if (workshop.availabilityRate < 99) {
+                tr.classList.add('table-warning');
+            } else {
+                tr.classList.add('table-success');
+            }
+
+            // 排名
+            const tdRank = document.createElement('td');
+            tdRank.textContent = index + 1;
+            tr.appendChild(tdRank);
+
+            // 车间名称
+            const tdWorkshop = document.createElement('td');
+            tdWorkshop.textContent = workshop.workshop;
+            tr.appendChild(tdWorkshop);
+
+            // 设备数量
+            const tdEquipment = document.createElement('td');
+            tdEquipment.textContent = workshop.equipmentCount;
+            tr.appendChild(tdEquipment);
+
+            // 故障时间
+            const tdFaultTime = document.createElement('td');
+            tdFaultTime.textContent = workshop.faultTimeHours.toFixed(2);
+            tr.appendChild(tdFaultTime);
+
+            // 妥善率
+            const tdRate = document.createElement('td');
+            tdRate.textContent = workshop.availabilityRate.toFixed(2) + '%';
+            tdRate.style.fontWeight = 'bold';
+            tr.appendChild(tdRate);
+
+            tableBody.appendChild(tr);
+        });
+    }
+
+    /**
+     * 显示车间妥善率图表
+     */
+    displayAvailabilityChart(workshops) {
+        const container = document.getElementById('availabilityChartContainer');
+        if (!container) return;
+
+        // 销毁已有图表
+        if (this.availabilityChart) {
+            this.availabilityChart.dispose();
+        }
+
+        // 创建新图表
+        this.availabilityChart = echarts.init(container);
+
+        // 准备数据（按妥善率排序）
+        const sortedWorkshops = [...workshops].sort((a, b) => a.availabilityRate - b.availabilityRate);
+        const workshopNames = sortedWorkshops.map(w => w.workshop);
+        const availabilityRates = sortedWorkshops.map(w => w.availabilityRate);
+
+        // 配置颜色（根据妥善率）
+        const itemColors = availabilityRates.map(rate => {
+            if (rate < 95) return '#ee6666';  // 红色
+            if (rate < 99) return '#fac858';  // 黄色
+            return '#5470c6';  // 蓝色
+        });
+
+        const option = {
+            title: {
+                text: '车间设备妥善率统计',
+                left: 'center'
+            },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                },
+                formatter: function(params) {
+                    const item = params[0];
+                    const index = item.dataIndex;
+                    const workshop = sortedWorkshops[index];
+                    return `${item.name}<br/>` +
+                           `设备数量: ${workshop.equipmentCount} 台<br/>` +
+                           `故障时间: ${workshop.faultTimeHours.toFixed(2)} 小时<br/>` +
+                           `妥善率: ${item.value}%`;
+                }
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'value',
+                name: '妥善率 (%)',
+                min: 0,
+                max: 100
+            },
+            yAxis: {
+                type: 'category',
+                data: workshopNames,
+                inverse: true
+            },
+            series: [
+                {
+                    name: '妥善率',
+                    type: 'bar',
+                    data: availabilityRates,
+                    itemStyle: {
+                        color: function(params) {
+                            return itemColors[params.dataIndex];
+                        }
+                    },
+                    label: {
+                        show: true,
+                        position: 'right',
+                        formatter: '{c}%',
+                        fontSize: 10
+                    }
+                }
+            ]
+        };
+
+        this.availabilityChart.setOption(option);
+    }
+
+    /**
+     * 处理导出妥善率数据
+     */
+    handleExportAvailability() {
+        if (!this.availabilityReport) {
+            showError('没有可导出的妥善率数据');
+            return;
+        }
+
+        if (typeof XLSX === 'undefined') {
+            showError('Excel导出库未加载，请刷新页面重试');
+            return;
+        }
+
+        try {
+            const wb = XLSX.utils.book_new();
+
+            // 总体统计数据
+            const overallData = [
+                { '项目': '设备总数', '值': this.availabilityReport.overall.totalEquipment, '单位': '台' },
+                { '项目': '故障时间总和', '值': this.availabilityReport.overall.totalFaultTimeHours, '单位': '小时' },
+                { '项目': '总体设备妥善率', '值': this.availabilityReport.overall.availabilityRate, '单位': '%' },
+                { '项目': '月时间', '值': this.availabilityReport.metadata.monthHours, '单位': '小时' }
+            ];
+            const overallWs = XLSX.utils.json_to_sheet(overallData);
+            XLSX.utils.book_append_sheet(wb, overallWs, '总体统计');
+
+            // 车间详情数据
+            const workshopData = this.availabilityReport.workshops.map((w, index) => ({
+                '排名': index + 1,
+                '车间名称': w.workshop,
+                '设备数量': w.equipmentCount,
+                '故障时间(小时)': w.faultTimeHours,
+                '妥善率(%)': w.availabilityRate
+            }));
+            const workshopWs = XLSX.utils.json_to_sheet(workshopData);
+            XLSX.utils.book_append_sheet(wb, workshopWs, '车间妥善率详情');
+
+            // 生成文件名
+            const timestamp = generateExportTimestamp();
+            const filename = sanitizeFilename(`设备妥善率统计_${timestamp}.xlsx`);
+
+            // 导出文件
+            XLSX.writeFile(wb, filename);
+
+            showSuccess(`妥善率数据已导出: ${filename}`, 3000);
+        } catch (error) {
+            console.error('妥善率数据导出错误:', error);
+            showError('妥善率数据导出失败: ' + error.message);
+        }
+    }
+
+    /**
+     * 处理从妥善率页面返回
+     */
+    handleBackFromAvailability() {
+        this.showStep(4);
     }
 }
 
