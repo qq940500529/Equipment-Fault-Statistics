@@ -33,7 +33,7 @@
   "dependencies": {
     "bootstrap": "^5.3.8",
     "dayjs": "^1.11.20",
-    "echarts": "^6.0.0",
+    "echarts": "^6.1.0",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
