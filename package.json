@@ -31,7 +31,7 @@
     "url": "https://github.com/qq940500529/Equipment-Fault-Statistics.git"
   },
   "dependencies": {
-    "bootstrap": "^5.3.8",
+    "bootstrap": "^5.3.9",
     "dayjs": "^1.11.20",
     "echarts": "^6.0.0",
     "xlsx": "^0.18.5"
